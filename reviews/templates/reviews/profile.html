@@ -1,0 +1,113 @@
+{% extends "reviews/base.html" %}
+{% block title %}我的評價 — 清大課程評價系統{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- 個人資訊卡 -->
+  <div class="card mb-4 p-4">
+    <div class="d-flex align-items-center gap-4">
+      <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
+           style="width:64px;height:64px;background:var(--nthu);font-size:1.6rem">
+        {{ student.student_name|first }}
+      </div>
+      <div>
+        <h4 class="fw-bold mb-1" style="color:var(--nthu-dark)">{{ student.student_name }}</h4>
+        <div class="text-muted small d-flex flex-wrap gap-3">
+          <span><i class="bi bi-credit-card me-1"></i>學號：{{ student.student_id }}</span>
+          {% if student.major %}
+            <span><i class="bi bi-building me-1"></i>{{ student.major }}</span>
+          {% endif %}
+          {% if student.year_level %}
+            <span><i class="bi bi-mortarboard me-1"></i>{{ student.year_level }} 年級</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="ms-auto text-end">
+        <div class="fw-bold fs-4" style="color:var(--nthu)">{{ reviews|length }}</div>
+        <div class="text-muted small">筆評價</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 評價紀錄 -->
+  <h3 class="section-title mb-4">
+    <i class="bi bi-clock-history me-2"></i>評價紀錄
+    <span class="fs-6 fw-normal text-muted ms-2">{{ reviews|length }} 筆</span>
+  </h3>
+
+  {% if reviews %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr style="font-size:.85rem;color:#6B7280;border-bottom:2px solid #EDE9F6">
+          <th class="ps-0 pb-3">課程名稱</th>
+          <th class="text-center pb-3">甜度</th>
+          <th class="text-center pb-3">涼度</th>
+          <th class="text-center pb-3">含金量</th>
+          <th class="text-center pb-3">整體</th>
+          <th class="pb-3">留言</th>
+          <th class="text-end pe-0 pb-3">日期</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in reviews %}
+        <tr style="border-bottom:1px solid #F3E8FF">
+          <td class="ps-0 py-3">
+            <a href="{% url 'course_detail' review.course.course_id %}"
+               class="fw-semibold text-decoration-none" style="color:var(--nthu)">
+              {{ review.course.course_name }}
+            </a>
+          </td>
+          <td class="text-center">
+            <span class="score-pill pill-sweetness">{{ review.sweetness_score }}</span>
+          </td>
+          <td class="text-center">
+            <span class="score-pill pill-easiness">{{ review.easiness_score }}</span>
+          </td>
+          <td class="text-center">
+            <span class="score-pill pill-value">{{ review.value_score }}</span>
+          </td>
+          <td class="text-center">
+            {% if review.overall_score >= 4 %}
+              <div class="score-circle score-high mx-auto" style="width:36px;height:36px;font-size:.85rem">
+                {{ review.overall_score }}
+              </div>
+            {% elif review.overall_score >= 3 %}
+              <div class="score-circle score-mid mx-auto" style="width:36px;height:36px;font-size:.85rem">
+                {{ review.overall_score }}
+              </div>
+            {% else %}
+              <div class="score-circle score-low mx-auto" style="width:36px;height:36px;font-size:.85rem">
+                {{ review.overall_score }}
+              </div>
+            {% endif %}
+          </td>
+          <td style="max-width:220px">
+            {% if review.comment_text %}
+              <span class="text-secondary small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                {{ review.comment_text }}
+              </span>
+            {% else %}
+              <span class="text-muted fst-italic small">（無留言）</span>
+            {% endif %}
+          </td>
+          <td class="text-end pe-0 text-muted small">{{ review.review_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-chat-left display-3 mb-3" style="opacity:.3"></i>
+    <p>你還沒有撰寫任何評價。</p>
+    <a href="{% url 'course_list' %}" class="btn btn-nthu">
+      <i class="bi bi-journal-text me-1"></i>瀏覽課程
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

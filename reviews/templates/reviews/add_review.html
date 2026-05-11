@@ -1,0 +1,200 @@
+{% extends "reviews/base.html" %}
+{% block title %}撰寫評價 — {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">首頁</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'course_list' %}">課程列表</a></li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'course_detail' course.course_id %}">{{ course.course_name }}</a>
+      </li>
+      <li class="breadcrumb-item active">撰寫評價</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+
+      <!-- Course info pill -->
+      <div class="d-flex align-items-center gap-3 p-3 mb-4 rounded-3"
+           style="background:var(--nthu-pale)">
+        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+             style="width:44px;height:44px;background:var(--nthu);flex-shrink:0;font-size:1.1rem">
+          <i class="bi bi-book"></i>
+        </div>
+        <div>
+          <div class="fw-bold" style="color:var(--nthu)">{{ course.course_name }}</div>
+          <div class="text-muted small">
+            <i class="bi bi-person me-1"></i>{{ course.professor.professor_name }}
+            {% if course.department %} &nbsp;·&nbsp; {{ course.department }}{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 p-lg-5">
+        <h4 class="fw-bold mb-4" style="color:var(--nthu)">
+          <i class="bi bi-pencil-fill me-2"></i>撰寫評價
+        </h4>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- 已登入學生資訊 -->
+          <div class="d-flex align-items-center gap-3 p-3 mb-4 rounded-3"
+               style="background:#F0FDF4;border:1px solid #BBF7D0">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                 style="width:40px;height:40px;background:#059669;flex-shrink:0">
+              <i class="bi bi-person-check"></i>
+            </div>
+            <div>
+              <div class="fw-semibold" style="color:#047857">{{ student.student_name }}</div>
+              <div class="text-muted small">學號：{{ student.student_id }}
+                {% if student.major %} &nbsp;·&nbsp; {{ student.major }}{% endif %}
+                {% if student.year_level %} &nbsp;·&nbsp; {{ student.year_level }} 年級{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+          <p class="fw-semibold mb-1">評分</p>
+          <p class="text-muted small mb-4">點擊星星選擇分數（1 = 最低，5 = 最高）</p>
+
+          <!-- Sweetness -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold" style="color:#B45309">
+              <i class="bi bi-emoji-smile me-1"></i>甜度
+              <span class="text-muted fw-normal small ms-1">（課程輕鬆程度）</span>
+            </label>
+            <div class="star-group" id="sg_sweetness" data-select="id_sweetness_score">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+            <div class="d-none">{{ form.sweetness_score }}</div>
+            {% if form.sweetness_score.errors %}
+              <div class="text-danger small">
+                {% for e in form.sweetness_score.errors %}{{ e }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Easiness -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold" style="color:#047857">
+              <i class="bi bi-wind me-1"></i>涼度
+              <span class="text-muted fw-normal small ms-1">（作業 / 考試難度）</span>
+            </label>
+            <div class="star-group" id="sg_easiness" data-select="id_easiness_score">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+            <div class="d-none">{{ form.easiness_score }}</div>
+            {% if form.easiness_score.errors %}
+              <div class="text-danger small">
+                {% for e in form.easiness_score.errors %}{{ e }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Value -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold" style="color:#4338CA">
+              <i class="bi bi-gem me-1"></i>含金量
+              <span class="text-muted fw-normal small ms-1">（學習收穫）</span>
+            </label>
+            <div class="star-group" id="sg_value" data-select="id_value_score">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+            <div class="d-none">{{ form.value_score }}</div>
+            {% if form.value_score.errors %}
+              <div class="text-danger small">
+                {% for e in form.value_score.errors %}{{ e }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Overall -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold" style="color:var(--nthu)">
+              <i class="bi bi-star-fill me-1"></i>整體評分
+            </label>
+            <div class="star-group" id="sg_overall" data-select="id_overall_score">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+            <div class="d-none">{{ form.overall_score }}</div>
+            {% if form.overall_score.errors %}
+              <div class="text-danger small">
+                {% for e in form.overall_score.errors %}{{ e }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Comment -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">評論內容 <span class="text-muted fw-normal">（選填）</span></label>
+            {{ form.comment_text }}
+            <div class="form-text">最多 500 字</div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-nthu flex-grow-1 py-2 fw-bold">
+              <i class="bi bi-check-circle me-1"></i>送出評價
+            </button>
+            <a href="{% url 'course_detail' course.course_id %}"
+               class="btn btn-outline-secondary px-4">取消</a>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.star-group').forEach(group => {
+  const selectEl = document.getElementById(group.dataset.select);
+  const stars     = Array.from(group.querySelectorAll('.star'));
+  let   current   = parseInt(selectEl.value) || 0;
+
+  function paint() {
+    stars.forEach((s, i) => s.classList.toggle('lit', i < current));
+  }
+  paint();
+
+  stars.forEach((star, idx) => {
+    const val = idx + 1;
+    star.addEventListener('mouseenter', () => {
+      stars.forEach((s, i) => s.classList.toggle('lit', i < val));
+    });
+    star.addEventListener('click', () => {
+      current = val;
+      selectEl.value = String(val);
+      paint();
+    });
+  });
+
+  group.addEventListener('mouseleave', paint);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "reviews/base.html" %}
+{% block title %}註冊 — 清大課程評價系統{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-sm-10 col-md-8 col-lg-6">
+
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width:64px;height:64px;background:var(--nthu-pale)">
+          <i class="bi bi-person-plus fs-2" style="color:var(--nthu)"></i>
+        </div>
+        <h2 class="fw-bold" style="color:var(--nthu-dark)">建立帳號</h2>
+        <p class="text-muted small">使用學號及密碼完成註冊</p>
+      </div>
+
+      <div class="card p-4 p-lg-5">
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">學號 <span class="text-danger">*</span></label>
+              {{ form.student_id }}
+              {% if form.student_id.errors %}
+                <div class="text-danger small mt-1">
+                  {% for e in form.student_id.errors %}{{ e }}{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">姓名 <span class="text-danger">*</span></label>
+              {{ form.student_name }}
+              {% if form.student_name.errors %}
+                <div class="text-danger small mt-1">
+                  {% for e in form.student_name.errors %}{{ e }}{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-sm-8">
+              <label class="form-label fw-semibold">科系 <span class="text-muted fw-normal">（選填）</span></label>
+              {{ form.major }}
+              {% if form.major.errors %}
+                <div class="text-danger small mt-1">
+                  {% for e in form.major.errors %}{{ e }}{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label fw-semibold">年級 <span class="text-danger">*</span></label>
+              {{ form.year_level }}
+              {% if form.year_level.errors %}
+                <div class="text-danger small mt-1">
+                  {% for e in form.year_level.errors %}{{ e }}{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">密碼 <span class="text-danger">*</span></label>
+            {{ form.password }}
+            <div class="form-text">6 ~ 8 位字元</div>
+            {% if form.password.errors %}
+              <div class="text-danger small mt-1">
+                {% for e in form.password.errors %}{{ e }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">確認密碼 <span class="text-danger">*</span></label>
+            {{ form.confirm_password }}
+            {% if form.confirm_password.errors %}
+              <div class="text-danger small mt-1">
+                {% for e in form.confirm_password.errors %}{{ e }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-nthu w-100 py-2 fw-bold">
+            <i class="bi bi-check-circle me-1"></i>完成註冊
+          </button>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center text-muted small mb-0">
+          已有帳號？
+          <a href="{% url 'login' %}" class="fw-semibold" style="color:var(--nthu)">立即登入</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

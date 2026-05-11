@@ -1,0 +1,194 @@
+{% extends "reviews/base.html" %}
+{% block title %}{{ course.course_name }} — 清大課程評價系統{% endblock %}
+
+{% block content %}
+
+<!-- ── Course Header ── -->
+<div style="background:linear-gradient(135deg,var(--nthu-dark) 0%,var(--nthu) 60%,var(--nthu-light) 100%)">
+  <div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb mb-0" style="--bs-breadcrumb-divider-color:rgba(255,255,255,.5)">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white-50">首頁</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'course_list' %}" class="text-white-50">課程列表</a></li>
+        <li class="breadcrumb-item active text-white">{{ course.course_name }}</li>
+      </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div class="text-white">
+        <!-- Dept badge -->
+        {% if course.department == '經濟系' %}
+          <span class="badge badge-econ mb-2">經濟系</span>
+        {% elif course.department == '計財系' %}
+          <span class="badge badge-qf mb-2">計財系</span>
+        {% else %}
+          <span class="badge badge-ctm mb-2">{{ course.department|default:"科管院" }}</span>
+        {% endif %}
+        <span class="badge bg-white text-dark mb-2">{{ course.credits }} 學分</span>
+
+        <h1 class="fw-black mb-2" style="font-size:1.8rem">{{ course.course_name }}</h1>
+        <p class="mb-1" style="opacity:.85">
+          <i class="bi bi-person-fill me-1"></i>{{ course.professor.professor_name }}
+        </p>
+        <code style="opacity:.6;font-size:.8rem">{{ course.course_id }}</code>
+      </div>
+      <a href="{% url 'add_review' course.course_id %}"
+         class="btn btn-light fw-bold" style="color:var(--nthu)">
+        <i class="bi bi-pencil-fill me-1"></i>撰寫評價
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <!-- ── Score Section ── -->
+  {% if stats.avg_overall %}
+  <div class="card mb-4 p-4">
+    <div class="row g-4 align-items-center">
+
+      <!-- Big overall circle -->
+      <div class="col-md-3 text-center">
+        {% if stats.avg_overall >= 4 %}
+          <div class="score-circle score-high mx-auto mb-1"
+               style="width:88px;height:88px;font-size:1.8rem">
+            {{ stats.avg_overall|floatformat:1 }}
+          </div>
+        {% elif stats.avg_overall >= 3 %}
+          <div class="score-circle score-mid mx-auto mb-1"
+               style="width:88px;height:88px;font-size:1.8rem">
+            {{ stats.avg_overall|floatformat:1 }}
+          </div>
+        {% else %}
+          <div class="score-circle score-low mx-auto mb-1"
+               style="width:88px;height:88px;font-size:1.8rem">
+            {{ stats.avg_overall|floatformat:1 }}
+          </div>
+        {% endif %}
+        <div class="text-muted small">整體評分</div>
+        <div class="text-muted" style="font-size:.75rem">共 {{ reviews|length }} 筆評價</div>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="col-md-9">
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-semibold small" style="color:#B45309">
+              <i class="bi bi-emoji-smile me-1"></i>甜度
+            </span>
+            <span class="fw-bold small" style="color:#B45309">{{ stats.avg_sweetness|floatformat:1 }} / 5</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar bar-sweetness"
+                 style="width:{% widthratio stats.avg_sweetness 5 100 %}%"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-semibold small" style="color:#047857">
+              <i class="bi bi-wind me-1"></i>涼度
+            </span>
+            <span class="fw-bold small" style="color:#047857">{{ stats.avg_easiness|floatformat:1 }} / 5</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar bar-easiness"
+                 style="width:{% widthratio stats.avg_easiness 5 100 %}%"></div>
+          </div>
+        </div>
+        <div class="mb-0">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-semibold small" style="color:#4338CA">
+              <i class="bi bi-gem me-1"></i>含金量
+            </span>
+            <span class="fw-bold small" style="color:#4338CA">{{ stats.avg_value|floatformat:1 }} / 5</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar bar-value"
+                 style="width:{% widthratio stats.avg_value 5 100 %}%"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% endif %}
+
+  <!-- ── Review List ── -->
+  <h3 class="section-title mb-4">
+    <i class="bi bi-chat-left-text me-2"></i>所有評價
+    <span class="fs-6 fw-normal text-muted ms-2">{{ reviews|length }} 筆</span>
+  </h3>
+
+  {% if reviews %}
+    {% for review in reviews %}
+    <div class="card mb-3 p-4">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <div class="flex-grow-1">
+          <!-- Reviewer + Date -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                 style="width:36px;height:36px;background:var(--nthu);font-size:.85rem;flex-shrink:0">
+              {{ review.student.student_name|first }}
+            </div>
+            <div>
+              <div class="fw-semibold" style="font-size:.95rem">{{ review.student.student_name }}</div>
+              <div class="text-muted" style="font-size:.78rem">{{ review.review_date }}</div>
+            </div>
+          </div>
+
+          <!-- Score pills -->
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <span class="score-pill pill-sweetness">
+              <i class="bi bi-emoji-smile"></i>甜度
+              {% for i in "12345" %}
+                <span class="s {% if forloop.counter <= review.sweetness_score %}on{% endif %}">★</span>
+              {% endfor %}
+            </span>
+            <span class="score-pill pill-easiness">
+              <i class="bi bi-wind"></i>涼度
+              {% for i in "12345" %}
+                <span class="s {% if forloop.counter <= review.easiness_score %}on{% endif %}">★</span>
+              {% endfor %}
+            </span>
+            <span class="score-pill pill-value">
+              <i class="bi bi-gem"></i>含金量
+              {% for i in "12345" %}
+                <span class="s {% if forloop.counter <= review.value_score %}on{% endif %}">★</span>
+              {% endfor %}
+            </span>
+          </div>
+
+          <!-- Comment -->
+          {% if review.comment_text %}
+            <p class="mb-0 text-secondary" style="line-height:1.65">{{ review.comment_text }}</p>
+          {% else %}
+            <p class="mb-0 text-muted fst-italic small">（此評價沒有文字留言）</p>
+          {% endif %}
+        </div>
+
+        <!-- Overall circle -->
+        {% if review.overall_score >= 4 %}
+          <div class="score-circle score-high flex-shrink-0">{{ review.overall_score }}</div>
+        {% elif review.overall_score >= 3 %}
+          <div class="score-circle score-mid flex-shrink-0">{{ review.overall_score }}</div>
+        {% else %}
+          <div class="score-circle score-low flex-shrink-0">{{ review.overall_score }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-chat-left display-3 mb-3" style="opacity:.3"></i>
+    <p>還沒有評價，快來分享你的心得！</p>
+    <a href="{% url 'add_review' course.course_id %}" class="btn btn-nthu">
+      <i class="bi bi-pencil-fill me-1"></i>撰寫評價
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

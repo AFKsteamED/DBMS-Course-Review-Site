@@ -1,0 +1,239 @@
+{% extends "reviews/base.html" %}
+{% block title %}首頁 — 清大課程評價系統{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Hero: 漸層流動 ── */
+  @keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .hero-section {
+    background: linear-gradient(135deg,
+      #1a0038 0%, var(--nthu-dark) 20%,
+      var(--nthu) 45%, var(--nthu-light) 65%,
+      #9B59B6 80%, #1a0038 100%);
+    background-size: 280% 280%;
+    animation: gradientFlow 12s ease infinite;
+  }
+
+  /* ── Hero grid: 漂浮 ── */
+  @keyframes gridFloat {
+    0%, 100% { transform: translate(0, 0); }
+    30%       { transform: translate(-18px, -10px); }
+    65%       { transform: translate(10px, -16px); }
+  }
+  .hero-section::before {
+    inset: -30px;   /* 給漂浮留出空間，避免邊緣露白 */
+    animation: gridFloat 20s ease-in-out infinite;
+  }
+
+  /* ── 標題: fade-in + slide-up ── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-title    { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .1s  both; }
+  .hero-subtitle { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .35s both; }
+  .hero-cta      { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .55s both; }
+
+  /* ── 按鈕: pulse 呼吸燈 ── */
+  @keyframes heroPulse {
+    0%, 100% { box-shadow: 0 0 0 0   rgba(255,255,255,.40); }
+    50%       { box-shadow: 0 0 0 14px rgba(255,255,255,.00); }
+  }
+  .btn-hero-pulse { animation: heroPulse 2.4s ease-in-out infinite; }
+
+  /* 數字統計區延遲淡入 */
+  .hero-stats { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .7s both; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero Banner ── -->
+<section class="hero-section">
+  <div class="container position-relative">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <div class="d-inline-flex align-items-center gap-2 mb-3"
+             style="background:rgba(255,255,255,.15);border-radius:20px;padding:.35rem 1rem">
+          <i class="bi bi-star-fill text-warning"></i>
+          <span style="font-size:.85rem;opacity:.9">清華大學 · 科管院課程評價平台</span>
+        </div>
+        <h1 class="display-4 fw-black mb-3 hero-title" style="line-height:1.15">
+          選課前，先看<br>
+          <span style="color:#E9D5FF">同學的真實心得</span>
+        </h1>
+        <p class="lead mb-4 hero-subtitle" style="opacity:.85">
+          甜度・涼度・含金量，三個維度一次掌握，讓你選課不再踩雷。
+        </p>
+        <div class="d-flex gap-3 flex-wrap hero-cta">
+          <a href="{% url 'course_list' %}" class="btn btn-light btn-lg fw-bold px-4 btn-hero-pulse" style="color:var(--nthu)">
+            <i class="bi bi-search me-2"></i>瀏覽課程
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="row g-3 text-center text-white hero-stats">
+          <div class="col-4">
+            <div class="hero-stat">
+              <div class="num" data-count="{{ course_count }}">0</div>
+              <div class="lbl">門課程</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="hero-stat">
+              <div class="num" data-count="{{ professor_count }}">0</div>
+              <div class="lbl">位教授</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="hero-stat">
+              <div class="num" data-count="{{ review_count }}">0</div>
+              <div class="lbl">筆評價</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Top Courses ── -->
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title mb-0">
+      <i class="bi bi-trophy-fill text-warning me-2"></i>熱門課程 Top 5
+    </h2>
+    <a href="{% url 'course_list' %}" class="btn btn-outline-nthu btn-sm">查看全部</a>
+  </div>
+
+  {% if top_courses %}
+  <div class="row g-4">
+    {% for course in top_courses %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-hover h-100">
+        <div class="card-body p-4">
+          <!-- Rank + Score -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="fw-black" style="font-size:2.5rem;color:var(--nthu-pale);line-height:1">
+              #{{ forloop.counter }}
+            </span>
+            {% if course.avg_overall %}
+              {% if course.avg_overall >= 4 %}
+                <div class="score-circle score-high">{{ course.avg_overall|floatformat:1 }}</div>
+              {% elif course.avg_overall >= 3 %}
+                <div class="score-circle score-mid">{{ course.avg_overall|floatformat:1 }}</div>
+              {% else %}
+                <div class="score-circle score-low">{{ course.avg_overall|floatformat:1 }}</div>
+              {% endif %}
+            {% else %}
+              <div class="score-circle score-na">N/A</div>
+            {% endif %}
+          </div>
+          <!-- Dept badge -->
+          {% if course.department == '經濟系' %}
+            <span class="badge badge-econ mb-2">經濟系</span>
+          {% elif course.department == '計財系' %}
+            <span class="badge badge-qf mb-2">計財系</span>
+          {% else %}
+            <span class="badge badge-ctm mb-2">科管院</span>
+          {% endif %}
+          <!-- Name & Professor -->
+          <h5 class="fw-bold mb-1" style="font-size:1rem">
+            <a href="{% url 'course_detail' course.course_id %}"
+               class="text-decoration-none text-dark stretched-link">
+              {{ course.course_name }}
+            </a>
+          </h5>
+          <p class="text-muted small mb-0">
+            <i class="bi bi-person-fill me-1"></i>{{ course.professor.professor_name }}
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p class="text-muted">目前尚無課程資料。</p>
+  {% endif %}
+
+  <!-- ── Latest Reviews ── -->
+  <div class="mt-5">
+    <h2 class="section-title mb-4">
+      <i class="bi bi-chat-left-text-fill me-2" style="color:var(--nthu-light)"></i>最新評價
+    </h2>
+    {% if latest_reviews %}
+    <div class="row g-3">
+      {% for review in latest_reviews %}
+      <div class="col-md-6">
+        <div class="card h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1 me-3">
+              <a href="{% url 'course_detail' review.course.course_id %}"
+                 class="fw-bold text-decoration-none" style="color:var(--nthu)">
+                {{ review.course.course_name }}
+              </a>
+              <div class="text-muted small mt-1">
+                <i class="bi bi-person me-1"></i>{{ review.student.student_name }}
+                &nbsp;·&nbsp;{{ review.review_date }}
+              </div>
+              {% if review.comment_text %}
+                <p class="mb-0 mt-2 text-secondary small">{{ review.comment_text|truncatechars:80 }}</p>
+              {% endif %}
+            </div>
+            <!-- Overall score circle -->
+            {% if review.overall_score >= 4 %}
+              <div class="score-circle score-high flex-shrink-0" style="width:44px;height:44px;font-size:.9rem">
+                {{ review.overall_score }}
+              </div>
+            {% elif review.overall_score >= 3 %}
+              <div class="score-circle score-mid flex-shrink-0" style="width:44px;height:44px;font-size:.9rem">
+                {{ review.overall_score }}
+              </div>
+            {% else %}
+              <div class="score-circle score-low flex-shrink-0" style="width:44px;height:44px;font-size:.9rem">
+                {{ review.overall_score }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="text-muted">目前尚無評價資料。</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function animateCounter(el, target, duration) {
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      el.textContent = Math.round(easeOut(progress) * target);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(step);
+  }
+
+  // 配合 hero-stats animation-delay 0.7s 後開始計數
+  setTimeout(function () {
+    document.querySelectorAll('.hero-stat .num[data-count]').forEach(function (el) {
+      animateCounter(el, parseInt(el.dataset.count, 10), 1500);
+    });
+  }, 700);
+})();
+</script>
+{% endblock %}

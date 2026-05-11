@@ -1,0 +1,154 @@
+{% extends "reviews/base.html" %}
+{% block title %}課程列表 — 清大課程評價系統{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title mb-0"><i class="bi bi-journal-text me-2"></i>課程列表</h2>
+  </div>
+
+  <!-- 搜尋 + 篩選 form（所有條件共用同一個 form） -->
+  <form method="get" id="filterForm" class="mb-3">
+
+    <!-- 搜尋列 -->
+    <div class="input-group shadow-sm mb-3" style="max-width:540px">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="bi bi-search" style="color:var(--nthu-light)"></i>
+      </span>
+      <input type="text" name="q" value="{{ query }}"
+             class="form-control border-start-0 border-end-0 ps-0"
+             placeholder="搜尋課程名稱或教授姓名…">
+      <button class="btn btn-nthu px-4" type="submit">搜尋</button>
+      {% if query or dept or semester or sort %}
+        <a href="{% url 'course_list' %}" class="btn btn-outline-secondary" title="清除所有條件">✕</a>
+      {% endif %}
+    </div>
+
+    <!-- 篩選列 -->
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <span class="text-muted small me-1"><i class="bi bi-funnel me-1"></i>篩選：</span>
+
+      <!-- 開課系所 -->
+      <select name="dept" class="form-select form-select-sm filter-select"
+              style="width:auto;min-width:130px">
+        <option value=""       {% if not dept     %}selected{% endif %}>全部系所</option>
+        <option value="經濟系"  {% if dept == "經濟系"  %}selected{% endif %}>經濟系</option>
+        <option value="計財系"  {% if dept == "計財系"  %}selected{% endif %}>計財系</option>
+        <option value="科管院學士班" {% if dept == "科管院學士班" %}selected{% endif %}>科管院學士班</option>
+      </select>
+
+      <!-- 學期 -->
+      <select name="semester" class="form-select form-select-sm filter-select"
+              style="width:auto;min-width:130px">
+        <option value=""    {% if not semester       %}selected{% endif %}>全部學期</option>
+        <option value="114上" {% if semester == "114上" %}selected{% endif %}>114 上學期</option>
+        <option value="114下" {% if semester == "114下" %}selected{% endif %}>114 下學期</option>
+      </select>
+
+      <!-- 排序 -->
+      <select name="sort" class="form-select form-select-sm filter-select"
+              style="width:auto;min-width:160px">
+        <option value=""         {% if not sort              %}selected{% endif %}>預設排序</option>
+        <option value="overall"  {% if sort == "overall"     %}selected{% endif %}>整體評分 高→低</option>
+        <option value="sweetness"{% if sort == "sweetness"   %}selected{% endif %}>甜度 高→低</option>
+        <option value="easiness" {% if sort == "easiness"    %}selected{% endif %}>涼度 高→低</option>
+        <option value="value"    {% if sort == "value"       %}selected{% endif %}>含金量 高→低</option>
+      </select>
+    </div>
+  </form>
+
+  {% if query %}
+    <p class="text-muted mb-3 small">搜尋「<strong>{{ query }}</strong>」，共 {{ courses|length }} 筆結果</p>
+  {% endif %}
+
+  <!-- Card Grid -->
+  {% if courses %}
+  <div class="row g-4">
+    {% for course in courses %}
+    <div class="col-sm-6 col-xl-4">
+      <div class="card card-hover h-100">
+        <div class="card-body p-4">
+
+          <!-- Dept badge + Score circle -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            {% if course.department == '經濟系' %}
+              <span class="badge badge-econ">經濟系</span>
+            {% elif course.department == '計財系' %}
+              <span class="badge badge-qf">計財系</span>
+            {% else %}
+              <span class="badge badge-ctm">{{ course.department|default:"科管院" }}</span>
+            {% endif %}
+
+            {% if course.avg_overall %}
+              {% if course.avg_overall >= 4 %}
+                <div class="score-circle score-high" title="整體評分">{{ course.avg_overall|floatformat:1 }}</div>
+              {% elif course.avg_overall >= 3 %}
+                <div class="score-circle score-mid" title="整體評分">{{ course.avg_overall|floatformat:1 }}</div>
+              {% else %}
+                <div class="score-circle score-low" title="整體評分">{{ course.avg_overall|floatformat:1 }}</div>
+              {% endif %}
+            {% else %}
+              <div class="score-circle score-na" title="尚無評分">N/A</div>
+            {% endif %}
+          </div>
+
+          <!-- Course name (stretched link) -->
+          <h5 class="fw-bold mb-1" style="font-size:1rem;line-height:1.4">
+            <a href="{% url 'course_detail' course.course_id %}"
+               class="text-decoration-none text-dark stretched-link">
+              {{ course.course_name }}
+            </a>
+          </h5>
+
+          <!-- Professor -->
+          <p class="text-muted small mb-2">
+            <i class="bi bi-person-fill me-1"></i>{{ course.professor.professor_name }}
+          </p>
+
+          <!-- Course ID + Credits -->
+          <div class="d-flex align-items-center gap-2 mt-auto">
+            <code class="text-muted" style="font-size:.72rem">{{ course.course_id }}</code>
+            <span class="badge bg-light text-secondary border ms-auto">{{ course.credits }} 學分</span>
+          </div>
+        </div>
+
+        <!-- Footer buttons (z-index above stretched-link) -->
+        <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
+          <div class="d-flex gap-2" style="position:relative;z-index:2">
+            <a href="{% url 'course_detail' course.course_id %}"
+               class="btn btn-sm btn-outline-nthu flex-grow-1">
+              <i class="bi bi-eye me-1"></i>查看
+            </a>
+            <a href="{% url 'add_review' course.course_id %}"
+               class="btn btn-sm btn-nthu flex-grow-1">
+              <i class="bi bi-pencil me-1"></i>評價
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-inbox display-4"></i>
+    <p class="mt-3">找不到符合條件的課程。</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 下拉選單改變時自動提交 form（保留搜尋文字）
+document.querySelectorAll('.filter-select').forEach(sel => {
+  sel.addEventListener('change', () => {
+    document.getElementById('filterForm').submit();
+  });
+});
+</script>
+{% endblock %}

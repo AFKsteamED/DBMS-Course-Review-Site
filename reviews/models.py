@@ -1,0 +1,101 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+
+
+class Student(models.Model):
+    student_id = models.IntegerField(primary_key=True)
+    student_name = models.CharField(max_length=50)
+    major = models.CharField(max_length=50, null=True, blank=True)
+    year_level = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'Student'
+
+    def __str__(self):
+        return self.student_name
+
+
+class Professor(models.Model):
+    professor_id = models.IntegerField(primary_key=True)
+    professor_name = models.CharField(max_length=50)
+    department = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        db_table = 'Professor'
+
+    def __str__(self):
+        return self.professor_name
+
+
+class Course(models.Model):
+    course_id = models.CharField(max_length=30, primary_key=True)
+    course_name = models.CharField(max_length=100)
+    credits = models.IntegerField()
+    department = models.CharField(max_length=50, null=True, blank=True)
+    professor = models.ForeignKey(
+        Professor,
+        on_delete=models.RESTRICT,
+        db_column='professor_id',
+    )
+
+    class Meta:
+        db_table = 'Course'
+
+    def __str__(self):
+        return self.course_name
+
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.RESTRICT,
+        db_column='student_id',
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.RESTRICT,
+        db_column='course_id',
+    )
+    semester = models.CharField(max_length=20)
+    grade = models.CharField(max_length=5, null=True, blank=True)
+
+    class Meta:
+        db_table = 'Enrollment'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'course', 'semester'],
+                name='enrollment_pk',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.student} - {self.course} ({self.semester})'
+
+
+SCORE_VALIDATORS = [MinValueValidator(1), MaxValueValidator(5)]
+
+
+class Review(models.Model):
+    review_id = models.IntegerField(primary_key=True)
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.RESTRICT,
+        db_column='student_id',
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.RESTRICT,
+        db_column='course_id',
+    )
+    sweetness_score = models.IntegerField(validators=SCORE_VALIDATORS)
+    easiness_score = models.IntegerField(validators=SCORE_VALIDATORS)
+    value_score = models.IntegerField(validators=SCORE_VALIDATORS)
+    overall_score = models.IntegerField(validators=SCORE_VALIDATORS)
+    comment_text = models.CharField(max_length=500, null=True, blank=True)
+    review_date = models.DateField()
+
+    class Meta:
+        db_table = 'Review'
+
+    def __str__(self):
+        return f'Review {self.review_id} by {self.student} on {self.course}'
