@@ -10,19 +10,11 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── Security ──────────────────────────────────────────────────────────────────
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-3$-w944u31ry)=%r!hbptkhrq16al+$h0x%+7va83+ywso%$rz',
-)
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-key')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '.railway.app',
-    '.up.railway.app',
-]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 # ── Application ───────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -66,28 +58,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'course_review.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
-# Railway 會自動注入 DATABASE_URL；本機開發則使用 fallback 設定
-_DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if _DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=_DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'course_review_db',
-            'USER': 'postgres',
-            'PASSWORD': os.environ.get('DB_PASSWORD', '7355608'),
-            'HOST': os.environ.get('DB_HOST', 'localhost'),
-            'PORT': os.environ.get('DB_PORT', '5432'),
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+    )
+}
 
 # ── Password validation ───────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
