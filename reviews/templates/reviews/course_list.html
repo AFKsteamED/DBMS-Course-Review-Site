@@ -30,13 +30,13 @@
     <div class="d-flex flex-wrap gap-2 align-items-center">
       <span class="text-muted small me-1"><i class="bi bi-funnel me-1"></i>篩選：</span>
 
-      <!-- 開課系所 -->
+      <!-- 開課系所（動態從資料庫讀取） -->
       <select name="dept" class="form-select form-select-sm filter-select"
-              style="width:auto;min-width:130px">
-        <option value=""       {% if not dept     %}selected{% endif %}>全部系所</option>
-        <option value="經濟系"  {% if dept == "經濟系"  %}selected{% endif %}>經濟系</option>
-        <option value="計財系"  {% if dept == "計財系"  %}selected{% endif %}>計財系</option>
-        <option value="科管院學士班" {% if dept == "科管院學士班" %}selected{% endif %}>科管院學士班</option>
+              style="width:auto;min-width:160px">
+        <option value="" {% if not dept %}selected{% endif %}>全部系所</option>
+        {% for d in departments %}
+          <option value="{{ d }}" {% if dept == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
       </select>
 
       <!-- 學期 -->

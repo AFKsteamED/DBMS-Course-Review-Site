@@ -17,13 +17,23 @@ COMMENTS = [
     '老師講解清楚，上課不無聊。',
     '報告很多，需要花時間。',
     '適合想輕鬆過的同學。',
+    '課程內容豐富，收穫滿滿。',
+    '期中考有點難，但老師有劃重點。',
+    '點名不嚴，但要認真準備期末。',
+    '課程對未來工作很有幫助。',
+    '老師人很好，有問題都會解答。',
+    '作業量適中，不會壓力太大。',
+    '課程節奏稍快，建議提前預習。',
     None,  # 留空
     None,  # 留空機率加倍
+    None,  # 留空機率加三倍
 ]
 
 NAMES = [
     '王小明', '李美玲', '陳建宏', '林雅婷', '張志偉',
     '黃淑芬', '吳俊賢', '劉怡君', '蔡文彬', '鄭雪晴',
+    '許家豪', '謝宛蓉', '江柏翰', '邱雅惠', '洪志遠',
+    '葉美君', '賴俊廷', '何雨晴', '蕭信宏', '顏宜珊',
 ]
 MAJORS = ['經濟系', '計財系', '科管系', '工業工程系', '資訊工程系', '電機系']
 
@@ -32,8 +42,9 @@ END_DATE = date(2025, 6, 30)
 DATE_RANGE_DAYS = (END_DATE - START_DATE).days
 
 PASSWORD = 'test1234'
-NUM_STUDENTS = 10
+NUM_STUDENTS = 20
 SEED_USERNAME_PATTERN = r'^11\d1\d{4}$'
+COURSE_RATIO = 0.4   # 40% 課程加入評價
 
 
 def _rand_sid() -> int:
@@ -115,7 +126,7 @@ class Command(BaseCommand):
         all_courses = list(Course.objects.select_related('professor').all())
         random.shuffle(all_courses)
 
-        n_with = round(len(all_courses) * 0.6)
+        n_with = round(len(all_courses) * COURSE_RATIO)
         courses_with = all_courses[:n_with]
         courses_without = all_courses[n_with:]
 
@@ -158,16 +169,14 @@ class Command(BaseCommand):
         self._out('=' * 62)
         self._out(f'  學生帳號：{len(students)} 位　密碼統一：{PASSWORD}')
         self._out(f'  評價總筆數：{review_count} 筆')
-        self._out(f'  有評價課程：{w} 門　無評價課程：{wo} 門　共 {w + wo} 門')
+        self._out(f'  有評價課程：{w} 門（{COURSE_RATIO*100:.0f}%）')
+        self._out(f'  無評價課程：{wo} 門')
+        self._out(f'  課程總數：{w + wo} 門')
         self._out('=' * 62)
 
-        self._out('\n【有評價的課程】')
-        for c in sorted(courses_with, key=lambda x: x.course_id):
+        self._out('\n【有評價課程（前 20 筆範例）】')
+        for c in sorted(courses_with, key=lambda x: x.course_id)[:20]:
             cnt = Review.objects.filter(course=c).count()
-            self._out(f'  [v] {c.course_id:<16} {c.course_name}（{cnt} 筆）')
-
-        self._out('\n【無評價的課程】')
-        for c in sorted(courses_without, key=lambda x: x.course_id):
-            self._out(f'  [ ] {c.course_id:<16} {c.course_name}')
+            self._out(f'  [v] {c.course_id:<18} {c.course_name[:20]:<20} ({cnt} 筆)')
 
         self._out('\nSeed 完成！')

@@ -78,12 +78,20 @@ def course_list(request):
             F('avg_overall').desc(nulls_last=True), 'course_name'
         )
 
+    departments = (
+        Course.objects
+        .values_list('department', flat=True)
+        .distinct()
+        .order_by('department')
+    )
+
     return render(request, 'reviews/course_list.html', {
         'courses': courses,
         'query': query,
         'dept': dept,
         'semester': semester,
         'sort': sort,
+        'departments': departments,
     })
 
 
