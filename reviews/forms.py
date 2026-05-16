@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 
-SCORE_CHOICES = [(i, str(i)) for i in range(1, 6)]
+# 0.5, 1.0, 1.5, ..., 5.0
+SCORE_CHOICES = [(f'{i / 2:.1f}', f'{i / 2:.1f}') for i in range(1, 11)]
 
 
 class ReviewForm(forms.Form):
@@ -17,11 +18,6 @@ class ReviewForm(forms.Form):
     )
     value_score = forms.ChoiceField(
         label='含金量（學習收穫）',
-        choices=SCORE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-    )
-    overall_score = forms.ChoiceField(
-        label='整體評分',
         choices=SCORE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
     )

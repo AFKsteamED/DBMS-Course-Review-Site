@@ -126,24 +126,8 @@
             {% endif %}
           </div>
 
-          <!-- Overall -->
-          <div class="mb-4">
-            <label class="form-label fw-semibold" style="color:var(--nthu)">
-              <i class="bi bi-star-fill me-1"></i>整體評分
-            </label>
-            <div class="star-group" id="sg_overall" data-select="id_overall_score">
-              <span class="star" data-val="1">★</span>
-              <span class="star" data-val="2">★</span>
-              <span class="star" data-val="3">★</span>
-              <span class="star" data-val="4">★</span>
-              <span class="star" data-val="5">★</span>
-            </div>
-            <div class="d-none">{{ form.overall_score }}</div>
-            {% if form.overall_score.errors %}
-              <div class="text-danger small">
-                {% for e in form.overall_score.errors %}{{ e }}{% endfor %}
-              </div>
-            {% endif %}
+          <div class="text-muted small mb-3 fst-italic">
+            <i class="bi bi-info-circle me-1"></i>整體評分將由三項分數自動計算平均。
           </div>
 
           <hr class="my-4">
@@ -175,26 +159,36 @@
 document.querySelectorAll('.star-group').forEach(group => {
   const selectEl = document.getElementById(group.dataset.select);
   const stars     = Array.from(group.querySelectorAll('.star'));
-  let   current   = parseInt(selectEl.value) || 0;
+  let   current   = parseFloat(selectEl.value) || 0;
 
-  function paint() {
-    stars.forEach((s, i) => s.classList.toggle('lit', i < current));
+  function hoverVal(star, event) {
+    const rect  = star.getBoundingClientRect();
+    const isLeft = (event.clientX - rect.left) < rect.width / 2;
+    const idx   = parseInt(star.dataset.val);
+    return isLeft ? idx - 0.5 : idx;
+  }
+
+  function paint(val) {
+    const v = (val !== undefined) ? val : current;
+    stars.forEach((s, i) => {
+      const idx = i + 1;
+      s.classList.remove('lit', 'half');
+      if (v >= idx)       s.classList.add('lit');
+      else if (v >= idx - 0.5) s.classList.add('half');
+    });
   }
   paint();
 
-  stars.forEach((star, idx) => {
-    const val = idx + 1;
-    star.addEventListener('mouseenter', () => {
-      stars.forEach((s, i) => s.classList.toggle('lit', i < val));
-    });
-    star.addEventListener('click', () => {
-      current = val;
-      selectEl.value = String(val);
+  stars.forEach(star => {
+    star.addEventListener('mousemove', e => paint(hoverVal(star, e)));
+    star.addEventListener('click',     e => {
+      current = hoverVal(star, e);
+      selectEl.value = current.toFixed(1);
       paint();
     });
   });
 
-  group.addEventListener('mouseleave', paint);
+  group.addEventListener('mouseleave', () => paint());
 });
 </script>
 {% endblock %}

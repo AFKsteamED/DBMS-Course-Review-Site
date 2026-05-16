@@ -1,5 +1,6 @@
 import re
 from collections import Counter
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.conf import settings
 from django.contrib import messages
@@ -152,15 +153,21 @@ def add_review(request, course_id):
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
+            sweetness = Decimal(form.cleaned_data['sweetness_score'])
+            easiness  = Decimal(form.cleaned_data['easiness_score'])
+            value     = Decimal(form.cleaned_data['value_score'])
+            overall   = ((sweetness + easiness + value) / 3).quantize(
+                Decimal('0.1'), rounding=ROUND_HALF_UP
+            )
             max_id = Review.objects.aggregate(max_id=Max('review_id'))['max_id'] or 0
             Review.objects.create(
                 review_id=max_id + 1,
                 student=student,
                 course=course,
-                sweetness_score=int(form.cleaned_data['sweetness_score']),
-                easiness_score=int(form.cleaned_data['easiness_score']),
-                value_score=int(form.cleaned_data['value_score']),
-                overall_score=int(form.cleaned_data['overall_score']),
+                sweetness_score=sweetness,
+                easiness_score=easiness,
+                value_score=value,
+                overall_score=overall,
                 comment_text=form.cleaned_data['comment_text'] or None,
                 review_date=timezone.now().date(),
             )
@@ -253,21 +260,28 @@ def edit_review(request, review_id):
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
-            review.sweetness_score = int(form.cleaned_data['sweetness_score'])
-            review.easiness_score = int(form.cleaned_data['easiness_score'])
-            review.value_score = int(form.cleaned_data['value_score'])
-            review.overall_score = int(form.cleaned_data['overall_score'])
+            sweetness = Decimal(form.cleaned_data['sweetness_score'])
+            easiness  = Decimal(form.cleaned_data['easiness_score'])
+            value     = Decimal(form.cleaned_data['value_score'])
+            review.sweetness_score = sweetness
+            review.easiness_score  = easiness
+            review.value_score     = value
+            review.overall_score   = ((sweetness + easiness + value) / 3).quantize(
+                Decimal('0.1'), rounding=ROUND_HALF_UP
+            )
             review.comment_text = form.cleaned_data['comment_text'] or None
             review.save()
             messages.success(request, '評價已成功更新。')
             return redirect('profile')
     else:
+        def _fmt(v):
+            return f'{float(v):.1f}'
+
         form = ReviewForm(initial={
-            'sweetness_score': review.sweetness_score,
-            'easiness_score': review.easiness_score,
-            'value_score': review.value_score,
-            'overall_score': review.overall_score,
-            'comment_text': review.comment_text or '',
+            'sweetness_score': _fmt(review.sweetness_score),
+            'easiness_score':  _fmt(review.easiness_score),
+            'value_score':     _fmt(review.value_score),
+            'comment_text':    review.comment_text or '',
         })
 
     return render(request, 'reviews/edit_review.html', {

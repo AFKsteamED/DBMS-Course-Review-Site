@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
@@ -72,7 +74,7 @@ class Enrollment(models.Model):
         return f'{self.student} - {self.course} ({self.semester})'
 
 
-SCORE_VALIDATORS = [MinValueValidator(1), MaxValueValidator(5)]
+SCORE_VALIDATORS = [MinValueValidator(Decimal('0.5')), MaxValueValidator(Decimal('5.0'))]
 
 
 class Review(models.Model):
@@ -87,10 +89,10 @@ class Review(models.Model):
         on_delete=models.RESTRICT,
         db_column='course_id',
     )
-    sweetness_score = models.IntegerField(validators=SCORE_VALIDATORS)
-    easiness_score = models.IntegerField(validators=SCORE_VALIDATORS)
-    value_score = models.IntegerField(validators=SCORE_VALIDATORS)
-    overall_score = models.IntegerField(validators=SCORE_VALIDATORS)
+    sweetness_score = models.DecimalField(max_digits=2, decimal_places=1, validators=SCORE_VALIDATORS)
+    easiness_score = models.DecimalField(max_digits=2, decimal_places=1, validators=SCORE_VALIDATORS)
+    value_score = models.DecimalField(max_digits=2, decimal_places=1, validators=SCORE_VALIDATORS)
+    overall_score = models.DecimalField(max_digits=2, decimal_places=1, validators=SCORE_VALIDATORS)
     comment_text = models.CharField(max_length=500, null=True, blank=True)
     review_date = models.DateField()
 

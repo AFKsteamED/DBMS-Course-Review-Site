@@ -105,16 +105,30 @@
     .bar-value      { background: linear-gradient(90deg, #6366F1, #A78BFA); }
     .bar-overall    { background: linear-gradient(90deg, var(--nthu), var(--nthu-light)); }
 
-    /* ── Star Rating (add_review form) ── */
+    /* ── Star Rating (add_review / edit_review form) ── */
     .star-group { display: flex; gap: 4px; cursor: pointer; }
     .star-group .star {
       font-size: 2.4rem; line-height: 1;
+      display: inline-block;
       color: #D1D5DB;
-      transition: color .1s ease, transform .1s ease;
+      -webkit-text-fill-color: #D1D5DB;
+      background: none;
+      transition: transform .1s ease;
       user-select: none;
     }
-    .star-group .star.lit  { color: var(--sweetness); text-shadow: 0 0 6px rgba(245,158,11,.4); }
-    .star-group .star:hover { transform: scale(1.2); }
+    .star-group .star.lit {
+      color: var(--sweetness);
+      -webkit-text-fill-color: var(--sweetness);
+      background: none;
+      text-shadow: 0 0 6px rgba(245,158,11,.4);
+    }
+    .star-group .star.half {
+      background: linear-gradient(to right, var(--sweetness) 50%, #D1D5DB 50%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .star-group .star:hover { transform: scale(1.15); }
 
     /* ── Inline star display (review cards) ── */
     .stars-sm .s  { font-size: .85rem; color: #D1D5DB; }
