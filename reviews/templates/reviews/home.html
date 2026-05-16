@@ -47,6 +47,52 @@
 
   /* 數字統計區延遲淡入 */
   .hero-stats { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .7s both; }
+
+  /* ── 排名說明 Tooltip ── */
+  .rank-tooltip {
+    position: relative;
+    font-size: .9rem;
+    color: var(--nthu-light);
+    cursor: help;
+    vertical-align: middle;
+  }
+  .rank-tooltip::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a2e;
+    color: #fff;
+    padding: .5rem .85rem;
+    border-radius: 8px;
+    font-size: .75rem;
+    white-space: pre-line;
+    width: 270px;
+    text-align: left;
+    line-height: 1.65;
+    font-weight: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    z-index: 1000;
+    box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  }
+  .rank-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 112%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: #1a1a2e;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    z-index: 1000;
+  }
+  .rank-tooltip:hover::after,
+  .rank-tooltip:hover::before { opacity: 1; }
 </style>
 {% endblock %}
 
@@ -106,6 +152,10 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="section-title mb-0">
       <i class="bi bi-trophy-fill text-warning me-2"></i>熱門課程 Top 5
+      <span class="rank-tooltip ms-1"
+            data-tip="排名依據：綜合評分 = 平均分數 × log(評價數+1)&#10;至少需有 3 筆評價，評價數越多權重越高">
+        <i class="bi bi-info-circle"></i>
+      </span>
     </h2>
     <a href="{% url 'course_list' %}" class="btn btn-outline-nthu btn-sm">查看全部</a>
   </div>

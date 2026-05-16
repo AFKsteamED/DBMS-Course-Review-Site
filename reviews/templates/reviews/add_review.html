@@ -126,8 +126,13 @@
             {% endif %}
           </div>
 
-          <div class="text-muted small mb-3 fst-italic">
-            <i class="bi bi-info-circle me-1"></i>整體評分將由三項分數自動計算平均。
+          <!-- 整體評分即時預覽 -->
+          <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-2"
+               style="background:#F8F7FC;border:1.5px solid #EDE9F6">
+            <span class="text-muted small fw-semibold">整體評分預覽</span>
+            <div id="overall-preview-circle" class="score-circle score-na"
+                 style="width:48px;height:48px;font-size:1.05rem">N/A</div>
+            <span class="text-muted small fst-italic">（三項分數平均，送出後自動寫入）</span>
           </div>
 
           <hr class="my-4">
@@ -184,11 +189,36 @@ document.querySelectorAll('.star-group').forEach(group => {
     star.addEventListener('click',     e => {
       current = hoverVal(star, e);
       selectEl.value = current.toFixed(1);
+      selectEl.dispatchEvent(new Event('change'));
       paint();
     });
   });
 
   group.addEventListener('mouseleave', () => paint());
 });
+
+// ── 整體評分即時預覽 ──
+function updateOverallPreview() {
+  const s = parseFloat(document.getElementById('id_sweetness_score').value) || 0;
+  const e = parseFloat(document.getElementById('id_easiness_score').value)  || 0;
+  const v = parseFloat(document.getElementById('id_value_score').value)     || 0;
+  const circle = document.getElementById('overall-preview-circle');
+
+  if (s > 0 && e > 0 && v > 0) {
+    const avg = Math.round((s + e + v) / 3 * 10) / 10;
+    circle.textContent = avg.toFixed(1);
+    circle.className = 'score-circle ' +
+      (avg >= 4 ? 'score-high' : avg >= 3 ? 'score-mid' : 'score-low');
+  } else {
+    circle.textContent = 'N/A';
+    circle.className = 'score-circle score-na';
+  }
+  circle.style.cssText = 'width:48px;height:48px;font-size:1.05rem';
+}
+
+['id_sweetness_score', 'id_easiness_score', 'id_value_score'].forEach(id =>
+  document.getElementById(id).addEventListener('change', updateOverallPreview)
+);
+updateOverallPreview();
 </script>
 {% endblock %}

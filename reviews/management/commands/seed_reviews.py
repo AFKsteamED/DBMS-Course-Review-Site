@@ -1,6 +1,8 @@
 import random
 import sys
+from collections import defaultdict
 from datetime import date, timedelta
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -24,10 +26,22 @@ COMMENTS = [
     '老師人很好，有問題都會解答。',
     '作業量適中，不會壓力太大。',
     '課程節奏稍快，建議提前預習。',
+    '小班制，和老師互動機會多。',
+    '期末 project 很充實，學到不少實戰技巧。',
+    '內容偏理論，建議有基礎再選。',
+    '評分標準清楚，努力就有好成績。',
+    '上課有點無聊，但考試很好過。',
+    '老師給分不手軟，大推！',
+    '對找工作幫助很大，值得修。',
+    '課程難度偏高，需要多花時間複習。',
+    '輕鬆有趣，下課後還會查相關資料。',
+    '老師要求嚴格，但學到的東西很扎實。',
     None,  # 留空
-    None,  # 留空機率加倍
-    None,  # 留空機率加三倍
+    None,
+    None,
 ]
+
+HALF_SCORES = [i * 0.5 for i in range(1, 11)]  # 0.5, 1.0, ..., 5.0
 
 NAMES = [
     '王小明', '李美玲', '陳建宏', '林雅婷', '張志偉',
@@ -61,14 +75,28 @@ class Command(BaseCommand):
             action='store_true',
             help='執行前先刪除上次 seed 產生的資料',
         )
+        parser.add_argument(
+            '--add',
+            type=int,
+            default=0,
+            metavar='N',
+            help='使用現有 seed 學生新增 N 筆額外評價（分布全校各系所）',
+        )
 
     def handle(self, *args, **options):
         if options['clear']:
             self._clear_seed_data()
 
-        students = self._create_students()
-        review_count, courses_with, courses_without = self._create_reviews(students)
-        self._print_summary(students, review_count, courses_with, courses_without)
+        if options['add'] > 0:
+            students = self._get_existing_seed_students()
+            if not students:
+                self._out('[!] 找不到 seed 學生，請先執行完整 seed 或加上 --clear 重建')
+                return
+            self._add_extra_reviews(options['add'], students)
+        else:
+            students = self._create_students()
+            review_count, courses_with, courses_without = self._create_reviews(students)
+            self._print_summary(students, review_count, courses_with, courses_without)
 
     # ------------------------------------------------------------------ #
 
@@ -77,6 +105,64 @@ class Command(BaseCommand):
         encoded = (msg + '\n').encode('utf-8', errors='replace')
         sys.stdout.buffer.write(encoded)
         sys.stdout.buffer.flush()
+
+    def _get_existing_seed_students(self) -> list[Student]:
+        test_ids = [
+            int(u) for u in
+            User.objects.filter(username__regex=SEED_USERNAME_PATTERN)
+            .values_list('username', flat=True)
+        ]
+        students = list(Student.objects.filter(pk__in=test_ids))
+        self._out(f'找到 {len(students)} 位現有 seed 學生')
+        return students
+
+    def _add_extra_reviews(self, n: int, students: list[Student]):
+        # 按系所分組，確保分布均勻
+        all_courses = list(Course.objects.all())
+        dept_courses: dict[str, list] = defaultdict(list)
+        for c in all_courses:
+            dept_courses[c.department or '其他'].append(c)
+        departments = list(dept_courses.keys())
+
+        next_id = (Review.objects.aggregate(m=Max('review_id'))['m'] or 0) + 1
+        to_create = []
+        dept_counter: dict[str, int] = defaultdict(int)
+
+        for i in range(n):
+            dept   = random.choice(departments)
+            course = random.choice(dept_courses[dept])
+            student = random.choice(students)
+
+            s = random.choice(HALF_SCORES)
+            e = random.choice(HALF_SCORES)
+            v = random.choice(HALF_SCORES)
+            overall = float(
+                ((Decimal(str(s)) + Decimal(str(e)) + Decimal(str(v))) / 3)
+                .quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            )
+            rand_days = random.randint(0, DATE_RANGE_DAYS)
+
+            to_create.append(Review(
+                review_id=next_id + i,
+                student=student,
+                course=course,
+                sweetness_score=s,
+                easiness_score=e,
+                value_score=v,
+                overall_score=overall,
+                comment_text=random.choice(COMMENTS),
+                review_date=START_DATE + timedelta(days=rand_days),
+            ))
+            dept_counter[dept] += 1
+
+        Review.objects.bulk_create(to_create)
+        self._out(f'新增 {n} 筆評價完成，涵蓋 {len(dept_counter)} 個系所')
+        self._out(f'資料庫評價總筆數：{Review.objects.count()}')
+
+        # 分數分布統計
+        scores = [r.sweetness_score for r in to_create]
+        avg = sum(scores) / len(scores)
+        self._out(f'甜度平均分（抽樣）：{avg:.2f}（均勻分布於 0.5–5.0）')
 
     def _clear_seed_data(self):
         test_users = User.objects.filter(username__regex=SEED_USERNAME_PATTERN)
