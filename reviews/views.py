@@ -1,3 +1,6 @@
+import re
+from collections import Counter
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -44,6 +47,35 @@ SORT_FIELDS = {
     'value':     F('avg_value').desc(nulls_last=True),
 }
 
+_PREFIX_RE = re.compile(r'^\d{5}([A-Za-z]+)')
+
+
+def _dept_options() -> list[tuple[str, str, str]]:
+    """
+    回傳 [(prefix, dept_name, display_label), ...] 按 prefix 字母排序。
+    display_label 格式：「ECON 經濟學系」
+    prefix 取該系所最常見的科號英文字母前綴。
+    """
+    dept_counters: dict[str, Counter] = {}
+    for course_id, dept in Course.objects.values_list('course_id', 'department'):
+        if not dept or dept in ('#N/A', 'N/A'):
+            continue
+        m = _PREFIX_RE.match(course_id)
+        if not m:
+            continue
+        prefix = m.group(1)
+        if dept not in dept_counters:
+            dept_counters[dept] = Counter()
+        dept_counters[dept][prefix] += 1
+
+    result = []
+    for dept, counter in dept_counters.items():
+        top_prefix = counter.most_common(1)[0][0]
+        result.append((top_prefix, dept, f'{top_prefix} {dept}'))
+
+    result.sort(key=lambda x: x[0])
+    return result
+
 
 def course_list(request):
     query    = request.GET.get('q', '').strip()
@@ -78,12 +110,7 @@ def course_list(request):
             F('avg_overall').desc(nulls_last=True), 'course_name'
         )
 
-    departments = (
-        Course.objects
-        .values_list('department', flat=True)
-        .distinct()
-        .order_by('department')
-    )
+    departments = _dept_options()
 
     return render(request, 'reviews/course_list.html', {
         'courses': courses,
