@@ -59,14 +59,25 @@
     </div>
   </form>
 
-  {% if query %}
-    <p class="text-muted mb-3 small">搜尋「<strong>{{ query }}</strong>」，共 {{ courses|length }} 筆結果</p>
-  {% endif %}
+  <!-- 搜尋結果 / 總筆數提示 -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <p class="text-muted small mb-0">
+      {% if query %}
+        搜尋「<strong>{{ query }}</strong>」，共
+      {% else %}
+        共
+      {% endif %}
+      <strong>{{ total_count }}</strong> 門課程
+      {% if page_obj.paginator.num_pages > 1 %}
+        ／第 {{ page_obj.number }}／{{ page_obj.paginator.num_pages }} 頁
+      {% endif %}
+    </p>
+  </div>
 
   <!-- Card Grid -->
-  {% if courses %}
+  {% if page_obj %}
   <div class="row g-4">
-    {% for course in courses %}
+    {% for course in page_obj %}
     <div class="col-sm-6 col-xl-4">
       <div class="card card-hover h-100">
         <div class="card-body p-4">
@@ -131,6 +142,50 @@
     </div>
     {% endfor %}
   </div>
+
+  <!-- 分頁控制 -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="mt-5" aria-label="課程列表分頁">
+    <ul class="pagination justify-content-center flex-wrap gap-1 mb-2">
+
+      <!-- 上一頁 -->
+      <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+        <a class="page-link rounded-3"
+           href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{{ query_string }}{% else %}#{% endif %}"
+           aria-label="上一頁">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+
+      <!-- 頁碼（含省略符號） -->
+      {% for p in page_range %}
+        {% if p == -1 %}
+          <li class="page-item disabled">
+            <span class="page-link rounded-3 border-0 bg-transparent">…</span>
+          </li>
+        {% elif p == page_obj.number %}
+          <li class="page-item active">
+            <span class="page-link rounded-3" style="background:var(--nthu);border-color:var(--nthu)">{{ p }}</span>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link rounded-3" href="?page={{ p }}{{ query_string }}">{{ p }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      <!-- 下一頁 -->
+      <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+        <a class="page-link rounded-3"
+           href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{{ query_string }}{% else %}#{% endif %}"
+           aria-label="下一頁">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+  {% endif %}
 
   {% else %}
   <div class="text-center py-5 text-muted">

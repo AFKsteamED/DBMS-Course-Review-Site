@@ -8,7 +8,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.db.models import Avg, F, Max, Q
+from django.core.paginator import Paginator
+from django.db.models import Avg, Count, F, Max, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -98,19 +99,49 @@ def _dept_options() -> list[tuple[str, str, str]]:
     return result
 
 
+COURSES_PER_PAGE = 18
+
+
+def _build_query_string(get_params) -> str:
+    """移除 page 後建立查詢字串，回傳 '' 或 '&key=val...' 格式。"""
+    params = get_params.copy()
+    params.pop('page', None)
+    qs = params.urlencode()
+    return f'&{qs}' if qs else ''
+
+
+def _page_range(current: int, total: int, window: int = 2) -> list:
+    """回傳含省略符號（-1）的頁碼清單，例如 [1, -1, 4, 5, 6, -1, 12]。"""
+    pages = {1, total}
+    for p in range(max(1, current - window), min(total, current + window) + 1):
+        pages.add(p)
+    result: list = []
+    prev = None
+    for p in sorted(pages):
+        if prev and p - prev > 1:
+            result.append(-1)   # 省略符號
+        result.append(p)
+        prev = p
+    return result
+
+
 def course_list(request):
     query    = request.GET.get('q', '').strip()
     dept     = request.GET.get('dept', '')
     semester = request.GET.get('semester', '')
     sort     = request.GET.get('sort', '')
+    page_num = request.GET.get('page', 1)
 
+    # ── 一次 annotate 所有聚合值，避免 N+1 ──────────────────────────────
     courses = Course.objects.select_related('professor').annotate(
         avg_overall=Avg('review__overall_score'),
         avg_sweetness=Avg('review__sweetness_score'),
         avg_easiness=Avg('review__easiness_score'),
         avg_value=Avg('review__value_score'),
+        review_count=Count('review'),
     )
 
+    # ── 後端篩選（全部在資料庫層完成）──────────────────────────────────
     if query:
         courses = courses.filter(
             Q(course_name__icontains=query) |
@@ -126,20 +157,24 @@ def course_list(request):
     if sort in SORT_FIELDS:
         courses = courses.order_by(SORT_FIELDS[sort], 'course_name')
     else:
-        # 預設：有評價的課程依課名排序，無評價的排在後面
         courses = courses.order_by(
             F('avg_overall').desc(nulls_last=True), 'course_name'
         )
 
-    departments = _dept_options()
+    # ── 分頁 ────────────────────────────────────────────────────────────
+    paginator = Paginator(courses, COURSES_PER_PAGE)
+    page_obj  = paginator.get_page(page_num)
 
     return render(request, 'reviews/course_list.html', {
-        'courses': courses,
-        'query': query,
-        'dept': dept,
+        'page_obj':     page_obj,
+        'total_count':  paginator.count,
+        'page_range':   _page_range(page_obj.number, paginator.num_pages),
+        'query_string': _build_query_string(request.GET),
+        'query':    query,
+        'dept':     dept,
         'semester': semester,
-        'sort': sort,
-        'departments': departments,
+        'sort':     sort,
+        'departments': _dept_options(),
     })
 
 
