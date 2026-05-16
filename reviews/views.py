@@ -1,3 +1,4 @@
+import math
 import re
 from collections import Counter
 from decimal import Decimal, ROUND_HALF_UP
@@ -16,17 +17,36 @@ from .forms import LoginForm, RegisterForm, ReviewForm
 from .models import Course, Professor, Review, Student
 
 
-def home(request):
-    top_courses_qs = (
+def _top5_courses():
+    """
+    綜合排序：分數 × log(評價數 + 1)
+    優先取評價數 ≥ 3 的課程；不足 5 門時降為 ≥ 1 筆。
+    """
+    from django.db.models import Count
+
+    qs = (
         Course.objects
-        .annotate(avg_overall=Avg('review__overall_score'))
-        .filter(avg_overall__isnull=False)       # 只取有評價的課程
+        .annotate(
+            avg_overall=Avg('review__overall_score'),
+            review_count=Count('review'),
+        )
+        .filter(review_count__gte=1)
         .select_related('professor')
-        .order_by('-avg_overall')
     )
-    if settings.DEBUG:
-        print('\n[DEBUG] Top5 SQL:', top_courses_qs.query, '\n')
-    top_courses = top_courses_qs[:5]
+
+    candidates = list(qs)
+    for c in candidates:
+        c.composite_score = float(c.avg_overall) * math.log(c.review_count + 1)
+
+    qualified = [c for c in candidates if c.review_count >= 3]
+    pool = qualified if len(qualified) >= 5 else candidates
+
+    pool.sort(key=lambda c: c.composite_score, reverse=True)
+    return pool[:5]
+
+
+def home(request):
+    top_courses = _top5_courses()
     latest_reviews = (
         Review.objects
         .select_related('student', 'course')
