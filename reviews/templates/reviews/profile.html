@@ -47,7 +47,8 @@
           <th class="text-center pb-3">含金量</th>
           <th class="text-center pb-3">整體</th>
           <th class="pb-3">留言</th>
-          <th class="text-end pe-0 pb-3">日期</th>
+          <th class="text-center pb-3">日期</th>
+          <th class="text-center pe-0 pb-3">操作</th>
         </tr>
       </thead>
       <tbody>
@@ -92,7 +93,28 @@
               <span class="text-muted fst-italic small">（無留言）</span>
             {% endif %}
           </td>
-          <td class="text-end pe-0 text-muted small">{{ review.review_date }}</td>
+          <td class="text-center text-muted small">{{ review.review_date }}</td>
+          <td class="text-center pe-0">
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="{% url 'edit_review' review.review_id %}"
+                 class="btn btn-sm btn-primary px-2 py-1"
+                 title="修改評價">
+                <i class="bi bi-pencil-fill"></i>
+              </a>
+              <button type="button"
+                      class="btn btn-sm btn-danger px-2 py-1"
+                      title="刪除評價"
+                      onclick="confirmDelete({{ review.review_id }})">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+              <!-- 隱藏刪除表單 -->
+              <form id="delete-form-{{ review.review_id }}"
+                    action="{% url 'delete_review' review.review_id %}"
+                    method="post" class="d-none">
+                {% csrf_token %}
+              </form>
+            </div>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -110,4 +132,14 @@
   {% endif %}
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(reviewId) {
+  if (confirm('確定要刪除這筆評價嗎？')) {
+    document.getElementById('delete-form-' + reviewId).submit();
+  }
+}
+</script>
 {% endblock %}

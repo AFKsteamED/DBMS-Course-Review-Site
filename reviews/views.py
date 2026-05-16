@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Avg, F, Max, Q
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -205,3 +206,50 @@ def profile_view(request):
         'student': student,
         'reviews': reviews,
     })
+
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review.objects.select_related('course', 'student'), pk=review_id)
+    student_id = int(request.user.username)
+    if review.student.student_id != student_id:
+        return HttpResponseForbidden('你沒有權限修改此評價。')
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review.sweetness_score = int(form.cleaned_data['sweetness_score'])
+            review.easiness_score = int(form.cleaned_data['easiness_score'])
+            review.value_score = int(form.cleaned_data['value_score'])
+            review.overall_score = int(form.cleaned_data['overall_score'])
+            review.comment_text = form.cleaned_data['comment_text'] or None
+            review.save()
+            messages.success(request, '評價已成功更新。')
+            return redirect('profile')
+    else:
+        form = ReviewForm(initial={
+            'sweetness_score': review.sweetness_score,
+            'easiness_score': review.easiness_score,
+            'value_score': review.value_score,
+            'overall_score': review.overall_score,
+            'comment_text': review.comment_text or '',
+        })
+
+    return render(request, 'reviews/edit_review.html', {
+        'form': form,
+        'review': review,
+        'course': review.course,
+    })
+
+
+@login_required
+def delete_review(request, review_id):
+    review = get_object_or_404(Review.objects.select_related('student'), pk=review_id)
+    student_id = int(request.user.username)
+    if review.student.student_id != student_id:
+        return HttpResponseForbidden('你沒有權限刪除此評價。')
+
+    if request.method == 'POST':
+        review.delete()
+        messages.success(request, '評價已成功刪除。')
+    return redirect('profile')
