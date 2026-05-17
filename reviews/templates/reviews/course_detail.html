@@ -140,23 +140,17 @@
 
           <!-- Score pills -->
           <div class="d-flex gap-2 flex-wrap mb-3">
-            <span class="score-pill pill-sweetness">
+            <span class="score-pill pill-sweetness" data-score="{{ review.sweetness_score }}">
               <i class="bi bi-emoji-smile"></i>甜度
-              {% for i in "12345" %}
-                <span class="s {% if forloop.counter <= review.sweetness_score %}on{% endif %}">★</span>
-              {% endfor %}
+              <span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span>
             </span>
-            <span class="score-pill pill-easiness">
+            <span class="score-pill pill-easiness" data-score="{{ review.easiness_score }}">
               <i class="bi bi-wind"></i>涼度
-              {% for i in "12345" %}
-                <span class="s {% if forloop.counter <= review.easiness_score %}on{% endif %}">★</span>
-              {% endfor %}
+              <span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span>
             </span>
-            <span class="score-pill pill-value">
+            <span class="score-pill pill-value" data-score="{{ review.value_score }}">
               <i class="bi bi-gem"></i>含金量
-              {% for i in "12345" %}
-                <span class="s {% if forloop.counter <= review.value_score %}on{% endif %}">★</span>
-              {% endfor %}
+              <span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span>
             </span>
           </div>
 
@@ -191,4 +185,17 @@
   {% endif %}
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.score-pill[data-score]').forEach(pill => {
+  const score = parseFloat(pill.dataset.score) || 0;
+  pill.querySelectorAll('.s').forEach((s, i) => {
+    const idx = i + 1;
+    if (score >= idx)            s.classList.add('lit');
+    else if (score >= idx - 0.5) s.classList.add('half');
+  });
+});
+</script>
 {% endblock %}

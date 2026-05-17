@@ -130,9 +130,14 @@
     }
     .star-group .star:hover { transform: scale(1.15); }
 
-    /* ── Inline star display (review cards) ── */
-    .stars-sm .s  { font-size: .85rem; color: #D1D5DB; }
-    .stars-sm .s.on { color: var(--sweetness); }
+    /* ── Inline star display (score pills in review cards) ── */
+    .score-pill .s { font-size: .85rem; color: #D1D5DB; -webkit-text-fill-color: #D1D5DB; background: none; }
+    .pill-sweetness .s.lit { color: #F59E0B; -webkit-text-fill-color: #F59E0B; background: none; }
+    .pill-easiness  .s.lit { color: #10B981; -webkit-text-fill-color: #10B981; background: none; }
+    .pill-value     .s.lit { color: #6366F1; -webkit-text-fill-color: #6366F1; background: none; }
+    .pill-sweetness .s.half { background: linear-gradient(to right, #F59E0B 50%, #D1D5DB 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .pill-easiness  .s.half { background: linear-gradient(to right, #10B981 50%, #D1D5DB 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .pill-value     .s.half { background: linear-gradient(to right, #6366F1 50%, #D1D5DB 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
     /* ── Hero ── */
     .hero-section {
