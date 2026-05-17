@@ -184,13 +184,12 @@
             {% endif %}
           </div>
           <!-- Dept badge -->
-          {% if course.department == '經濟系' %}
-            <span class="badge badge-econ mb-2">經濟系</span>
-          {% elif course.department == '計財系' %}
-            <span class="badge badge-qf mb-2">計財系</span>
-          {% else %}
-            <span class="badge badge-ctm mb-2">科管院</span>
-          {% endif %}
+          <span class="badge mb-2
+            {% if course.department == '經濟學系' or course.department == '經濟系' %}badge-econ
+            {% elif course.department == '計量財務金融學系' or course.department == '計財系' %}badge-qf
+            {% else %}badge-ctm{% endif %}">
+            {{ course.department|default:"未分類" }}
+          </span>
           <!-- Name & Professor -->
           <h5 class="fw-bold mb-1" style="font-size:1rem">
             <a href="{% url 'course_detail' course.course_id %}"
