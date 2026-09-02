@@ -3,31 +3,9 @@
 
 {% block extra_css %}
 <style>
-  /* ── Hero: 漸層流動 ── */
-  @keyframes gradientFlow {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  .hero-section {
-    background: linear-gradient(135deg,
-      #1a0038 0%, var(--nthu-dark) 20%,
-      var(--nthu) 45%, var(--nthu-light) 65%,
-      #9B59B6 80%, #1a0038 100%);
-    background-size: 280% 280%;
-    animation: gradientFlow 12s ease infinite;
-  }
-
-  /* ── Hero grid: 漂浮 ── */
-  @keyframes gridFloat {
-    0%, 100% { transform: translate(0, 0); }
-    30%       { transform: translate(-18px, -10px); }
-    65%       { transform: translate(10px, -16px); }
-  }
-  .hero-section::before {
-    inset: -30px;   /* 給漂浮留出空間，避免邊緣露白 */
-    animation: gridFloat 20s ease-in-out infinite;
-  }
+  /* Hero surface (refined static gradient) is defined in base.html.
+     Motion here is limited to a one-time load-in reveal — motivated
+     (draws the eye down the hierarchy on first paint), not decorative. */
 
   /* ── 標題: fade-in + slide-up ── */
   @keyframes fadeSlideUp {
@@ -38,12 +16,9 @@
   .hero-subtitle { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .35s both; }
   .hero-cta      { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .55s both; }
 
-  /* ── 按鈕: pulse 呼吸燈 ── */
-  @keyframes heroPulse {
-    0%, 100% { box-shadow: 0 0 0 0   rgba(255,255,255,.40); }
-    50%       { box-shadow: 0 0 0 14px rgba(255,255,255,.00); }
-  }
-  .btn-hero-pulse { animation: heroPulse 2.4s ease-in-out infinite; }
+  /* Primary CTA: quiet lift on hover instead of a perpetual pulse loop */
+  .btn-hero-pulse { box-shadow: 0 6px 20px -6px rgba(0,0,0,.35); transition: transform .16s, box-shadow .2s; }
+  .btn-hero-pulse:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -8px rgba(0,0,0,.42); }
 
   /* 數字統計區延遲淡入 */
   .hero-stats { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .7s both; }
