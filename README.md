@@ -12,34 +12,34 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 
-<sub>國立清華大學 · 科技管理學院 · 計量財務學系 · DBMS 課程期末專案 · 2026</sub>
+<sub>國立清華大學 · 科技管理學院學士班27級 · DBMS 課程期末專案 · 2026</sub>
 
 </div>
 
 ---
 
-## 📖 專案簡介
+## 一、專案簡介
 
 清大目前缺乏一個結構化的課程評價平台，學生選課時往往只能依賴口耳相傳或社群媒體上零散的資訊。本專案以 DBMS 課程期末作業為契機，結合全端開發技術，打造一個真正可用的課程評價工具，收錄 **114 學年度上下學期全校 5,000+ 門課程**。
 
-> 💡 **三維評分哲學**：不同於單一星等，本平台將課程拆解為「甜度（給分）／涼度（負擔）／含金量（收穫）」，讓每個人依自己的選課目標做出判斷。
+> **三維評分哲學**：不同於單一星等，本平台將課程拆解為「甜度（給分）／涼度（負擔）／含金量（收穫）」，讓每個人依自己的選課目標做出判斷。
 
 <br/>
 
-## ✨ 核心功能
+## 二、核心功能
 
 | 功能 | 說明 |
 |------|------|
-| 🏆 **熱門課程排名** | 以加權公式 `平均分數 × log(評價數 + 1)` 排序，至少 3 筆評價才入榜，避免少數評價灌水 |
-| 🔍 **多條件篩選** | 關鍵字（課名／教授）、開課系所、學期、排序方式自由組合，後端一次查詢完成 |
-| ⭐ **半星評分系統** | 以 0.5 顆星為單位（0.5–5.0，共 10 級），滑鼠半星互動 + 即時整體分數預覽 |
-| 👤 **使用者系統** | 以學號為帳號，未登入無法評價、修改／刪除僅限本人（非本人回傳 403） |
-| 📊 **課程詳細頁** | 三維度平均分數與所有評價一覽 |
-| 📝 **評價 CRUD** | 新增、修改（預填原資料）、刪除（確認對話框），overall 自動計算 |
+| **熱門課程排名** | 以加權公式 `平均分數 × log(評價數 + 1)` 排序，至少 3 筆評價才入榜，避免少數評價灌水 |
+| **多條件篩選** | 關鍵字（課名／教授）、開課系所、學期、排序方式自由組合，後端一次查詢完成 |
+| **半星評分系統** | 以 0.5 顆星為單位（0.5–5.0，共 10 級），滑鼠半星互動 + 即時整體分數預覽 |
+| **使用者系統** | 以學號為帳號，未登入無法評價、修改／刪除僅限本人（非本人回傳 403） |
+| **課程詳細頁** | 三維度平均分數與所有評價一覽 |
+| **評價 CRUD** | 新增、修改（預填原資料）、刪除（確認對話框），overall 自動計算 |
 
 <br/>
 
-## 🛠️ 技術架構
+## 三、技術架構
 
 採用標準的 Django **MVT（Model–View–Template）** 架構：
 
@@ -67,9 +67,9 @@
 
 <br/>
 
-## 🗄️ 資料庫設計
+## 四、資料庫設計
 
-四張核心資料表：
+四張table：
 
 ```
 ┌─────────────┐        ┌──────────────┐
@@ -103,7 +103,7 @@
            └──────────────────────┘
 ```
 
-**關鍵設計決策**
+**設計決策**
 
 - **`course_id` 用 VARCHAR 而非 INT** — 清大科號本身是字串（`11410ECON100201`），直接作為主鍵，省去額外對照。
 - **`overall_score` 自動計算** — 系統設為三項平均，不開放手動輸入，確保評分一致。
@@ -112,77 +112,7 @@
 
 <br/>
 
-## 🚀 本機開發
-
-**前置需求**：Python 3.12、PostgreSQL 15
-
-```bash
-# 1. 取得程式碼
-git clone https://github.com/AFKsteamED/DBMS-Course-Review-Site.git
-cd DBMS-Course-Review-Site
-
-# 2. 建立虛擬環境
-python3.12 -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-
-# 3. 安裝套件
-pip install -r requirements.txt
-
-# 4. 設定環境變數
-cp .env.example .env               # 填入你的資料庫帳密與 SECRET_KEY
-
-# 5. 建立資料表
-python manage.py migrate
-
-# 6.（選用）匯入課程與測試評價
-python manage.py import_courses    # 讀取 all_courses.json（全校 5,000+ 課程）
-python manage.py seed_reviews      # 產生測試評價
-
-# 7. 啟動
-python manage.py runserver
-```
-
-開啟 <http://127.0.0.1:8000> 即可瀏覽。
-
-> ℹ️ 環境變數由 `.env` 提供。未設定 `DATABASE_URL` 時，會使用 `DB_*` 變數連本機 PostgreSQL。
-
-<br/>
-
-## ☁️ 部署
-
-專案已內建雲端所需的一切（`Procfile`、`gunicorn`、`whitenoise`、`dj-database-url`），可部署到任何支援 Django 的 PaaS。
-
-### 方案 A — Render（推薦，Railway 的最佳替代）
-
-倉庫已附 [`render.yaml`](render.yaml) Blueprint，會一次建立 Web 服務 + PostgreSQL：
-
-1. 到 [render.com](https://render.com) 用 GitHub 登入。
-2. **New +** → **Blueprint** → 選這個 repo → Render 讀取 `render.yaml` 自動配置。
-3. `SECRET_KEY` 自動產生、`DATABASE_URL` 自動注入，按 **Apply** 即開始部署。
-4. 首次部署後，到服務的 **Shell** 執行 `python manage.py import_courses` 匯入課程。
-
-> Render 免費方案的 Web 服務閒置會休眠、PostgreSQL 免費額度約 90 天；適合作品展示。
-
-### 方案 B — Fly.io
-
-`fly launch` 會偵測 Django 並產生 `fly.toml`；用 `fly postgres create` 建資料庫並 `fly postgres attach` 注入 `DATABASE_URL`，再 `fly deploy`。
-
-### 方案 C — Vercel（可行但需改造）
-
-Vercel 為 serverless，較適合前端／Next.js。若要跑本專案需：(1) 用 [Neon Postgres](https://vercel.com/marketplace)（Vercel Marketplace）取得 `DATABASE_URL`；(2) 加一個 serverless 進入點（`api/index.py` 匯出 WSGI `app = get_wsgi_application()`）；(3) 靜態檔改由 WhiteNoise 服務。對 Django + 關聯式資料庫的長連線來說，**方案 A（Render）比 Vercel 直接得多**。
-
-**必要環境變數（各平台通用）**
-
-| 變數 | 說明 |
-|------|------|
-| `SECRET_KEY` | Django 密鑰（務必用亂數） |
-| `DEBUG` | 生產環境設 `False` |
-| `ALLOWED_HOSTS` | 你的網域，如 `.onrender.com` |
-| `DATABASE_URL` | 由平台的 PostgreSQL 提供 |
-
-<br/>
-
-## 📂 專案結構
+## 五、專案結構
 
 ```
 DBMS-Course-Review-Site/
@@ -204,17 +134,14 @@ DBMS-Course-Review-Site/
 │   ├── parse_courses.py         # 解析 PDF 課表
 │   └── parse_excel_courses.py   # 解析 Excel 課表
 ├── all_courses.json        # 全校課程資料（import_courses 的來源）
-├── render.yaml             # Render 一鍵部署藍圖
 ├── Procfile                # release: migrate / web: gunicorn
 ├── requirements.txt        # Python 相依套件
 └── manage.py
 ```
 
-> `scripts/` 內的解析器另需 `pip install pdfplumber pandas openpyxl`，且原始檔路徑為當初開發環境的本機路徑，僅作為資料處理流程的紀錄。
-
 <br/>
 
-## 🧩 開發歷程中解決的問題
+## 六、開發歷程中解決的問題
 
 | 問題 | 解決方式 |
 |------|----------|
@@ -227,19 +154,11 @@ DBMS-Course-Review-Site/
 
 <br/>
 
-## 🔮 未來優化方向
-
-- **功能**：防止重複評價、評價「有幫助」按鈕、評分分布圖、教授頁面、課程並排比較
-- **技術**：Redis 快取熱門排名、手機版 RWD 優化、PostgreSQL 全文搜尋、修課驗證、RESTful API 化
-
-<br/>
-
 ---
 
 <div align="center">
 
 **作者：郭珍妤** · 國立清華大學 · 2026
 <br/>
-<sub>本專案全程於 Claude Code 輔助下開發 🤖</sub>
 
 </div>
