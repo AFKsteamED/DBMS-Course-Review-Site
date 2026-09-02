@@ -69,15 +69,15 @@ if DATABASE_URL:
         )
     }
 else:
-    # 本機開發
+    # 本機開發（憑證由環境變數提供，避免寫死在版本控制中）
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'course_review_db',
-            'USER': 'postgres',
-            'PASSWORD': '7355608',
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'NAME': os.environ.get('DB_NAME', 'course_review_db'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
 
