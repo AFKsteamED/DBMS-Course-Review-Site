@@ -17,7 +17,7 @@
 </div>
 
 <p align="center">
-  <img src="docs/home.png" alt="清大課程評價平台 首頁" width="880">
+  <img src="docs/home.webp" alt="清大課程評價平台 首頁" width="880">
 </p>
 
 ---
