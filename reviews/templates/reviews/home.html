@@ -16,10 +16,6 @@
   .hero-subtitle { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .35s both; }
   .hero-cta      { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .55s both; }
 
-  /* Primary CTA: quiet lift on hover instead of a perpetual pulse loop */
-  .btn-hero-pulse { box-shadow: 0 6px 20px -6px rgba(0,0,0,.35); transition: transform .16s, box-shadow .2s; }
-  .btn-hero-pulse:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -8px rgba(0,0,0,.42); }
-
   /* 數字統計區延遲淡入 */
   .hero-stats { animation: fadeSlideUp .75s cubic-bezier(.22,1,.36,1) .7s both; }
 
@@ -78,39 +74,36 @@
   <div class="container position-relative">
     <div class="row align-items-center g-4">
       <div class="col-lg-7">
-        <div class="d-inline-flex align-items-center gap-2 mb-3"
-             style="background:rgba(255,255,255,.15);border-radius:20px;padding:.35rem 1rem">
-          <i class="bi bi-star-fill text-warning"></i>
-          <span style="font-size:.85rem;opacity:.9">清華大學 · 課程評價平台</span>
-        </div>
-        <h1 class="display-4 fw-black mb-3 hero-title" style="line-height:1.15">
+        <div class="hero-eyebrow mb-3 hero-title">清華大學 · 課程評價平台</div>
+        <h1 class="display-4 fw-black mb-3 hero-title" style="line-height:1.18">
           選課前，先看<br>
-          <span style="color:#E9D5FF">同學的真實心得</span>
+          <span class="text-nthu">同學的真實心得</span>
         </h1>
-        <p class="lead mb-4 hero-subtitle" style="opacity:.85">
+        <p class="lead mb-4 hero-subtitle" style="color:var(--ink-soft)">
           甜度・涼度・含金量，三個維度一次掌握，讓你選課不再踩雷。
         </p>
         <div class="d-flex gap-3 flex-wrap hero-cta">
-          <a href="{% url 'course_list' %}" class="btn btn-light btn-lg fw-bold px-4 btn-hero-pulse" style="color:var(--nthu)">
+          <a href="{% url 'course_list' %}" class="btn btn-nthu btn-lg fw-semibold px-4">
             <i class="bi bi-search me-2"></i>瀏覽課程
+          </a>
+          <a href="{% url 'course_list' %}?sort=overall" class="btn btn-outline-nthu btn-lg fw-semibold px-4">
+            熱門排行
           </a>
         </div>
       </div>
       <div class="col-lg-5">
-        <div class="row g-3 text-center text-white hero-stats">
-          <div class="col-4">
+        <div class="d-flex justify-content-lg-end hero-stats">
+          <div class="d-flex align-items-center gap-4 gap-lg-5">
             <div class="hero-stat">
               <div class="num" data-count="{{ course_count }}">0</div>
               <div class="lbl">門課程</div>
             </div>
-          </div>
-          <div class="col-4">
+            <div class="hero-divider"></div>
             <div class="hero-stat">
               <div class="num" data-count="{{ professor_count }}">0</div>
               <div class="lbl">位教授</div>
             </div>
-          </div>
-          <div class="col-4">
+            <div class="hero-divider"></div>
             <div class="hero-stat">
               <div class="num" data-count="{{ review_count }}">0</div>
               <div class="lbl">筆評價</div>
@@ -143,7 +136,7 @@
         <div class="card-body p-4">
           <!-- Rank + Score -->
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <span class="fw-black" style="font-size:2.5rem;color:var(--nthu-pale);line-height:1">
+            <span class="fw-black" style="font-size:2.5rem;color:rgba(75,0,130,.16);line-height:1">
               #{{ forloop.counter }}
             </span>
             {% if course.avg_overall %}

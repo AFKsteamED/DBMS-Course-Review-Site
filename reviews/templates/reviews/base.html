@@ -13,33 +13,32 @@
   <style>
     /* ── Design Tokens ─────────────────────────────────────────────── */
     :root {
-      /* Brand — NTHU purple (the university's own colour) */
+      /* Brand — NTHU purple, used as an ACCENT (not a full-bleed fill) */
       --nthu:        #4B0082;
       --nthu-dark:   #2D0057;
       --nthu-light:  #7B2FBE;
-      --nthu-pale:   #F3E8FF;
+      --nthu-pale:   #F2ECFA;
 
       /* Semantic score dimensions (data-viz, not decoration) */
-      --sweetness:   #F59E0B;
-      --easiness:    #10B981;
-      --value:       #6366F1;
+      --sweetness:   #D97706;
+      --easiness:    #059669;
+      --value:       #4F46E5;
       --overall:     #4B0082;
 
-      /* Neutrals — cool, faintly purple-tinted to sit under the brand */
-      --ink:         #1E1B2E;
-      --ink-soft:    #57516B;
-      --line:        #E8E2F3;
+      /* Neutrals — clean, faintly cool */
+      --ink:         #1A1723;
+      --ink-soft:    #6B6579;
+      --line:        #ECE8F2;
       --surface:     #FFFFFF;
-      --bg:          #F7F5FB;
+      --bg:          #FAFAFC;
 
-      /* Shape scale — cards 16 · controls 10 · pills full */
-      --card-radius: 16px;
+      /* Shape scale — cards 14 · controls 10 · pills full */
+      --card-radius: 14px;
       --ctrl-radius: 10px;
 
-      /* Elevation — shadows tinted to the brand hue, never pure black */
-      --shadow-sm:  0 1px 2px rgba(45,0,87,.05), 0 1px 3px rgba(45,0,87,.06);
-      --shadow-md:  0 2px 6px rgba(45,0,87,.06), 0 14px 30px -14px rgba(45,0,87,.22);
-      --shadow-lg:  0 10px 24px -8px rgba(45,0,87,.18), 0 24px 48px -20px rgba(45,0,87,.26);
+      /* Elevation — restrained; definition comes from hairline borders */
+      --shadow-card:  0 1px 2px rgba(26,23,35,.04);
+      --shadow-hover: 0 8px 22px -12px rgba(75,0,130,.22);
     }
 
     /* ── Global ────────────────────────────────────────────────────── */
@@ -51,32 +50,29 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
-      line-height: 1.6;
+      line-height: 1.65;
     }
-    a { color: var(--nthu-light); text-underline-offset: 2px; }
-    a:hover { color: var(--nthu); }
-    ::selection { background: rgba(123,47,190,.18); }
+    a { color: var(--nthu); text-underline-offset: 2px; }
+    a:hover { color: var(--nthu-light); }
+    ::selection { background: rgba(123,47,190,.16); }
 
     /* fw-black is used across templates but isn't a Bootstrap class — define it */
     .fw-black { font-weight: 900 !important; }
+    .text-nthu { color: var(--nthu) !important; }
     /* Stable digits for counters & scores */
     .hero-stat .num, .score-circle, code { font-variant-numeric: tabular-nums; }
 
-    /* ── Navbar ────────────────────────────────────────────────────── */
+    /* ── Navbar (clean, light) ─────────────────────────────────────── */
     .navbar-nthu {
-      background: linear-gradient(120deg, var(--nthu-dark) 0%, var(--nthu) 100%);
-      box-shadow: inset 0 -1px 0 rgba(255,255,255,.08), 0 6px 22px -10px rgba(45,0,87,.55);
+      background: rgba(255,255,255,.88);
+      backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--line);
     }
-    .navbar-nthu .navbar-brand { font-weight: 900; font-size: 1.2rem; letter-spacing: .2px; }
-    .navbar-nthu .nav-link { color: rgba(255,255,255,.82) !important; font-weight: 500; transition: color .2s; }
+    .navbar-nthu .navbar-brand { color: var(--nthu); font-weight: 900; font-size: 1.18rem; letter-spacing: .2px; }
+    .navbar-nthu .nav-link { color: var(--ink-soft); font-weight: 500; transition: color .2s; }
     .navbar-nthu .nav-link:hover,
-    .navbar-nthu .nav-link.active { color: #fff !important; }
-    .navbar-nthu .nav-link.active {
-      background: rgba(255,255,255,.15);
-      border-radius: 8px;
-      padding-left: .75rem;
-      padding-right: .75rem;
-    }
+    .navbar-nthu .nav-link.active { color: var(--nthu); }
+    .navbar-nthu .nav-link.active { background: var(--nthu-pale); border-radius: 8px; padding-left: .75rem; padding-right: .75rem; }
 
     /* ── Buttons ───────────────────────────────────────────────────── */
     .btn { border-radius: var(--ctrl-radius); font-weight: 600; }
@@ -84,83 +80,77 @@
       background: var(--nthu);
       color: #fff;
       border: none;
-      box-shadow: 0 1px 2px rgba(45,0,87,.25);
-      transition: background .2s, transform .12s, box-shadow .2s;
+      transition: background .18s, transform .12s;
     }
-    .btn-nthu:hover {
-      background: var(--nthu-light);
-      color: #fff;
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-    .btn-nthu:active { transform: translateY(0) scale(.985); }
+    .btn-nthu:hover { background: var(--nthu-light); color: #fff; }
+    .btn-nthu:active { transform: scale(.985); }
     .btn-outline-nthu {
-      border: 1.5px solid var(--nthu);
+      border: 1.5px solid rgba(75,0,130,.35);
       color: var(--nthu);
       transition: all .18s;
     }
-    .btn-outline-nthu:hover { background: var(--nthu); color: #fff; transform: translateY(-1px); }
-    .btn-outline-nthu:active { transform: translateY(0) scale(.985); }
+    .btn-outline-nthu:hover { background: var(--nthu); border-color: var(--nthu); color: #fff; }
+    .btn-outline-nthu:active { transform: scale(.985); }
 
     /* ── Forms ─────────────────────────────────────────────────────── */
     .form-control, .form-select { border-radius: var(--ctrl-radius); border-color: var(--line); }
     .form-control:focus, .form-select:focus {
       border-color: var(--nthu-light);
-      box-shadow: 0 0 0 .22rem rgba(123,47,190,.18);
+      box-shadow: 0 0 0 .2rem rgba(123,47,190,.15);
     }
-    .form-control::placeholder { color: #9a93ad; }
+    .form-control::placeholder { color: #a7a1b3; }
 
-    /* ── Cards ─────────────────────────────────────────────────────── */
+    /* ── Cards (flat, hairline border) ─────────────────────────────── */
     .card {
       border: 1px solid var(--line);
       border-radius: var(--card-radius);
       background: var(--surface);
-      box-shadow: var(--shadow-sm);
-      transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s, border-color .22s;
+      box-shadow: var(--shadow-card);
+      transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s;
     }
     .card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-      border-color: rgba(123,47,190,.28);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(123,47,190,.3);
     }
 
     /* ── Score Circle ──────────────────────────────────────────────── */
     .score-circle {
-      width: 54px; height: 54px;
+      width: 52px; height: 52px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1rem; font-weight: 800;
-      border: 2.5px solid;
+      border: 2px solid;
       flex-shrink: 0;
       transition: transform .2s;
     }
-    .score-circle:hover { transform: scale(1.08); }
-    .score-high  { color: #059669; border-color: #10B981; background: rgba(16,185,129,.10); }
-    .score-mid   { color: #D97706; border-color: #F59E0B; background: rgba(245,158,11,.10); }
-    .score-low   { color: #DC2626; border-color: #EF4444; background: rgba(239,68,68,.10); }
-    .score-na    { color: #9CA3AF; border-color: #D1D5DB; background: #F9FAFB; font-size: .7rem; }
+    .score-circle:hover { transform: scale(1.06); }
+    .score-high  { color: #047857; border-color: #10B981; background: rgba(16,185,129,.09); }
+    .score-mid   { color: #B45309; border-color: #F59E0B; background: rgba(245,158,11,.09); }
+    .score-low   { color: #B91C1C; border-color: #EF4444; background: rgba(239,68,68,.09); }
+    .score-na    { color: #9CA3AF; border-color: #E5E7EB; background: #FAFAFA; font-size: .7rem; }
 
     /* ── Department Badges ─────────────────────────────────────────── */
-    .badge { border-radius: 8px; font-weight: 600; letter-spacing: .2px; }
-    .badge-econ { background: #3B82F6; }
-    .badge-qf   { background: #14B8A6; }
+    .badge { border-radius: 7px; font-weight: 600; letter-spacing: .2px; }
+    .badge-econ { background: #2563EB; }
+    .badge-qf   { background: #0D9488; }
     .badge-ctm  { background: var(--nthu-light); }
 
-    /* ── Score Progress Bars ───────────────────────────────────────── */
-    .score-bar-wrap { background: var(--nthu-pale); height: 12px; border-radius: 6px; overflow: hidden; }
-    .score-bar      { height: 100%; border-radius: 6px; transition: width .8s cubic-bezier(.22,1,.36,1); }
-    .bar-sweetness  { background: linear-gradient(90deg, #F59E0B, #FCD34D); }
-    .bar-easiness   { background: linear-gradient(90deg, #10B981, #6EE7B7); }
-    .bar-value      { background: linear-gradient(90deg, #6366F1, #A78BFA); }
-    .bar-overall    { background: linear-gradient(90deg, var(--nthu), var(--nthu-light)); }
+    /* ── Score Progress Bars (solid fills) ─────────────────────────── */
+    .score-bar-wrap { background: #EFEDF3; height: 10px; border-radius: 999px; overflow: hidden; }
+    .score-bar      { height: 100%; border-radius: 999px; transition: width .8s cubic-bezier(.22,1,.36,1); }
+    .bar-sweetness  { background: var(--sweetness); }
+    .bar-easiness   { background: var(--easiness); }
+    .bar-value      { background: var(--value); }
+    .bar-overall    { background: var(--nthu); }
 
     /* ── Star Rating (add_review / edit_review form) ───────────────── */
     .star-group { display: flex; gap: 4px; cursor: pointer; }
     .star-group .star {
       font-size: 2.4rem; line-height: 1;
       display: inline-block;
-      color: #D1D5DB;
-      -webkit-text-fill-color: #D1D5DB;
+      color: #E3E0EA;
+      -webkit-text-fill-color: #E3E0EA;
       background: none;
       transition: transform .1s ease;
       user-select: none;
@@ -169,10 +159,9 @@
       color: var(--sweetness);
       -webkit-text-fill-color: var(--sweetness);
       background: none;
-      text-shadow: 0 0 6px rgba(245,158,11,.4);
     }
     .star-group .star.half {
-      background: linear-gradient(to right, var(--sweetness) 50%, #D1D5DB 50%);
+      background: linear-gradient(to right, var(--sweetness) 50%, #E3E0EA 50%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -180,41 +169,37 @@
     .star-group .star:hover { transform: scale(1.15); }
 
     /* ── Inline star display (score pills in review cards) ─────────── */
-    .score-pill .s { font-size: .85rem; color: #D1D5DB; -webkit-text-fill-color: #D1D5DB; background: none; }
-    .pill-sweetness .s.lit { color: #F59E0B; -webkit-text-fill-color: #F59E0B; background: none; }
-    .pill-easiness  .s.lit { color: #10B981; -webkit-text-fill-color: #10B981; background: none; }
-    .pill-value     .s.lit { color: #6366F1; -webkit-text-fill-color: #6366F1; background: none; }
-    .pill-sweetness .s.half { background: linear-gradient(to right, #F59E0B 50%, #D1D5DB 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .pill-easiness  .s.half { background: linear-gradient(to right, #10B981 50%, #D1D5DB 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .pill-value     .s.half { background: linear-gradient(to right, #6366F1 50%, #D1D5DB 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .score-pill .s { font-size: .85rem; color: #E3E0EA; -webkit-text-fill-color: #E3E0EA; background: none; }
+    .pill-sweetness .s.lit { color: var(--sweetness); -webkit-text-fill-color: var(--sweetness); background: none; }
+    .pill-easiness  .s.lit { color: var(--easiness);  -webkit-text-fill-color: var(--easiness);  background: none; }
+    .pill-value     .s.lit { color: var(--value);     -webkit-text-fill-color: var(--value);     background: none; }
+    .pill-sweetness .s.half { background: linear-gradient(to right, var(--sweetness) 50%, #E3E0EA 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .pill-easiness  .s.half { background: linear-gradient(to right, var(--easiness) 50%, #E3E0EA 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .pill-value     .s.half { background: linear-gradient(to right, var(--value) 50%, #E3E0EA 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-    /* ── Hero ──────────────────────────────────────────────────────── */
+    /* ── Hero (light, editorial) ───────────────────────────────────── */
     .hero-section {
-      background:
-        radial-gradient(1100px 480px at 88% -20%, rgba(155,89,182,.55), transparent 60%),
-        radial-gradient(760px 420px at -5% 120%, rgba(45,0,87,.55), transparent 55%),
-        linear-gradient(120deg, var(--nthu-dark) 0%, var(--nthu) 55%, #6D28A8 100%);
-      color: #fff;
-      padding: 5rem 0 4rem;
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(180deg, #F6F2FB 0%, var(--bg) 100%);
+      color: var(--ink);
+      padding: 4.75rem 0 3.5rem;
+      border-bottom: 1px solid var(--line);
     }
-    .hero-section::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    .hero-eyebrow {
+      font-size: .76rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--nthu-light);
     }
-    .hero-stat { text-align: center; }
-    .hero-stat .num { font-size: 1.9rem; font-weight: 900; }
-    .hero-stat .lbl { font-size: .8rem; opacity: .78; }
+    .hero-stat { }
+    .hero-stat .num { font-size: 1.95rem; font-weight: 900; color: var(--ink); line-height: 1.1; }
+    .hero-stat .lbl { font-size: .8rem; color: var(--ink-soft); }
+    .hero-divider { width: 1px; background: var(--line); align-self: stretch; }
 
     /* ── Section Headers ───────────────────────────────────────────── */
     .section-title {
       font-weight: 900;
-      font-size: 1.3rem;
-      color: var(--nthu-dark);
+      font-size: 1.28rem;
+      color: var(--ink);
       border-left: 4px solid var(--nthu);
-      padding-left: .75rem;
+      padding-left: .7rem;
       letter-spacing: .2px;
     }
 
@@ -226,10 +211,13 @@
       font-size: .78rem; font-weight: 700;
       gap: 4px;
     }
-    .pill-sweetness { background: rgba(245,158,11,.12); color: #B45309; }
-    .pill-easiness  { background: rgba(16,185,129,.12);  color: #047857; }
-    .pill-value     { background: rgba(99,102,241,.12);  color: #4338CA; }
-    .pill-overall   { background: rgba(75,0,130,.12);    color: var(--nthu); }
+    .pill-sweetness { background: rgba(217,119,6,.10);  color: #B45309; }
+    .pill-easiness  { background: rgba(5,150,105,.10);  color: #047857; }
+    .pill-value     { background: rgba(79,70,229,.10);  color: #4338CA; }
+    .pill-overall   { background: rgba(75,0,130,.10);   color: var(--nthu); }
+
+    /* ── Sub-page header (course detail) ───────────────────────────── */
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--line); }
 
     /* ── Footer ────────────────────────────────────────────────────── */
     .site-footer { border-top: 1px solid var(--line); color: var(--ink-soft); }
@@ -250,11 +238,11 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-nthu sticky-top">
   <div class="container">
-    <a class="navbar-brand text-white" href="{% url 'home' %}">
+    <a class="navbar-brand" href="{% url 'home' %}">
       <i class="bi bi-mortarboard-fill me-2"></i>清大課程評價平台
     </a>
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <i class="bi bi-list text-white fs-4"></i>
+      <i class="bi bi-list fs-4" style="color:var(--nthu)"></i>
     </button>
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto gap-1 align-items-lg-center">
@@ -279,7 +267,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <span class="nav-link text-white opacity-75 fw-semibold" style="cursor:default">
+          <span class="nav-link fw-semibold" style="cursor:default;color:var(--ink-soft)">
             <i class="bi bi-person-circle me-1"></i>Hi, {{ user.username }}
           </span>
         </li>
@@ -287,8 +275,8 @@
           <form method="post" action="{% url 'logout' %}" class="d-inline m-0">
             {% csrf_token %}
             <button type="submit"
-                    class="nav-link btn btn-link text-white opacity-75 border-0 p-0 px-2 py-1"
-                    style="text-decoration:none">
+                    class="nav-link btn btn-link border-0 p-0 px-2 py-1"
+                    style="text-decoration:none;color:var(--ink-soft)">
               <i class="bi bi-box-arrow-right me-1"></i>登出
             </button>
           </form>
@@ -300,8 +288,8 @@
             <i class="bi bi-person me-1"></i>登入
           </a>
         </li>
-        <li class="nav-item">
-          <a class="btn btn-sm btn-outline-light px-3 py-1 fw-semibold"
+        <li class="nav-item ms-lg-1">
+          <a class="btn btn-sm btn-nthu px-3 py-1 fw-semibold"
              href="{% url 'register' %}">
             <i class="bi bi-person-plus me-1"></i>註冊
           </a>
