@@ -63,7 +63,7 @@
 | 靜態檔案 | **WhiteNoise** | 雲端環境靜態檔案服務 |
 | DB 連線 | **dj-database-url + psycopg** | 解析 `DATABASE_URL` |
 | WSGI 伺服器 | **Gunicorn** | 生產環境 Web 伺服器 |
-| 資料解析 | **pdfplumber + pandas** | 解析 PDF / Excel 原始課程資料（見 `scripts/`） |
+| 資料解析 | **pdfplumber + pandas** | 離線解析教務處 PDF / Excel 課表，產出 `data/all_courses.json` |
 
 <br/>
 
@@ -130,10 +130,8 @@ DBMS-Course-Review-Site/
 │       ├── import_courses.py    # 匯入課程與教授
 │       ├── seed_reviews.py      # 產生測試評價
 │       └── fix_overall_scores.py# 批次修正歷史 overall_score
-├── scripts/                # 一次性原始資料解析（pdfplumber / pandas）
-│   ├── parse_courses.py         # 解析 PDF 課表
-│   └── parse_excel_courses.py   # 解析 Excel 課表
-├── all_courses.json        # 全校課程資料（import_courses 的來源）
+├── data/
+│   └── all_courses.json    # 全校課程資料（import_courses 的來源）
 ├── Procfile                # release: migrate / web: gunicorn
 ├── requirements.txt        # Python 相依套件
 └── manage.py

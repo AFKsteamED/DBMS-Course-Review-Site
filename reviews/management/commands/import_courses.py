@@ -13,8 +13,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--file',
-            default=str(Path(__file__).resolve().parents[3] / 'all_courses.json'),
-            help='Path to courses JSON (default: all_courses.json in project root)',
+            default=str(Path(__file__).resolve().parents[3] / 'data' / 'all_courses.json'),
+            help='Path to courses JSON (default: data/all_courses.json)',
         )
         parser.add_argument(
             '--no-clear',
