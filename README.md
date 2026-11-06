@@ -4,6 +4,7 @@
 ### NTHU Course Review Platform
 
 一個為國立清華大學學生打造的課程評價系統 — 從 **甜度**、**涼度**、**含金量** 三個維度，幫你在選課前看見同學的真實心得。
+
 https://nthu-course-review.up.railway.app/
 
 <br/>
